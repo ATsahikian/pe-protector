@@ -1,2 +1,2 @@
 # PeProtector
-PeProtector protects executeble files
+PeProtector protects executable files
