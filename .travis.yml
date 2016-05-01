@@ -1,0 +1,12 @@
+language: cpp
+os: windows
+compiler: gcc
+      
+install:
+  - choco install choco-packages.config -y
+  - export PATH="C:\ProgramData\chocolatey\lib\winlibs\tools\mingw64\bin":$PATH
+  - g++ --version
+
+script:
+  - travis_wait 60 cmake --preset debug
+  - travis_wait 30 cmake --build --preset debug -j 4

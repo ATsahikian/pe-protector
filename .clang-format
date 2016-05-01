@@ -1,0 +1,4 @@
+BasedOnStyle: Chromium
+SortIncludes: true
+IncludeBlocks: Preserve
+ColumnLimit:     80

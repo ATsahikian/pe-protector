@@ -1,0 +1,52 @@
+{
+    "version": 2,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 20,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "debug",
+            "displayName": "Debug Config",
+            "generator": "MinGW Makefiles",
+            "binaryDir": "${sourceParentDir}/build-debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_TOOLCHAIN_FILE": "./vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "VCPKG_INSTALLED_DIR": "${sourceParentDir}/vcpkg_installed"
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "Release Config",
+            "generator": "MinGW Makefiles",
+            "binaryDir": "${sourceParentDir}/build-release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_TOOLCHAIN_FILE": "./vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "VCPKG_INSTALLED_DIR": "${sourceParentDir}/vcpkg_installed"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "debug",
+            "configurePreset": "debug"
+        },
+        {
+            "name": "release",
+            "configurePreset": "release"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "debug",
+            "configurePreset": "debug"
+        },
+        {
+            "name": "release",
+            "configurePreset": "release"
+        }
+    ]
+}

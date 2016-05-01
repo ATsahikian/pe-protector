@@ -1,0 +1,9 @@
+{
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+    "name": "pe-protector",
+    "version": "0.0.1",
+    "dependencies": [
+        "boost",
+        "range-v3"
+    ]
+}
