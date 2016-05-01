@@ -1,0 +1,5 @@
+Compile/Debug/
+Debug/
+Doxyfile
+ipch/
+peProtector.sdf
