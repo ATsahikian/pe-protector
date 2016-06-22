@@ -60,8 +60,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(MSBuildStartupDirectory)\Compile\Debug;$(MSBuildStartupDirectory)\PeProtector\Debug;$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(OutDir)Library.lib;$(OutDir)LogLibrary.lib;Import.obj;Instruction.obj;InstructionModRM.obj;Opcodes.obj;Mutation.obj;Resources.obj;ClientFile.obj;PeHeader.obj;Dbghelp.lib;..\aplib\aplib.lib;CLexicalAnalizer.obj;CCompile.obj;Data.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\git\PeProtector\Compile\Debug;D:\git\PeProtector\PeProtector\Debug;$(MSBuildStartupDirectory)\Compile\Debug\;$(MSBuildStartupDirectory)\PeProtector\Debug\;$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(OutDir)Library.lib;$(OutDir)LogLibrary.lib;Instruction.obj;Import.obj;InstructionModRM.obj;Opcodes.obj;Mutation.obj;Resources.obj;ClientFile.obj;PeHeader.obj;Dbghelp.lib;..\aplib\aplib.lib;CLexicalAnalizer.obj;CCompile.obj;Data.obj;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

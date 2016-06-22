@@ -3,3 +3,8 @@ Debug/
 Doxyfile
 ipch/
 peProtector.sdf
+*.tlog
+*.smproj
+*.smp
+*.exp
+PeProtector/Release/PeProtector.res
