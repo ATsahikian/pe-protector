@@ -6,6 +6,7 @@
 #include "ProtectPe.h"
 #include "../LogLibrary/CLog.h"
 #include "ClientFile.h"
+#include "PeHeader.h"
 
 using std::ofstream;
 using std::ios_base;
@@ -25,6 +26,8 @@ int main(int argc, char * argv[], char * env[])
          try
          {
             const NPeProtector::SClientFile clientFile = NPeProtector::getPeFileInfo(argv[1]);
+            //test
+            NPeProtector::gImageBase = clientFile.mImageBase;
 
             ofstream fileStream(argv[1], ios_base::binary | ios_base::trunc);
 

@@ -147,7 +147,12 @@ namespace
          descriptionPtr->Name = toRVA(namesPtr, buffer, importRVA);
 
          // copy dll name
-         namesPtr = strcpy(namesPtr, i->first.c_str()) + strlen(i->first.c_str()) + 1;
+#pragma warning(push)
+#pragma warning(disable: 4996)
+         strcpy(namesPtr, i->first.c_str());
+#pragma warning(pop)
+
+         namesPtr += strlen(i->first.c_str()) + 1;
 
          for (tFunctionIterator j = i->second.begin(); j != i->second.end(); ++j)
          {
@@ -157,8 +162,13 @@ namespace
             *(namesPtr + 0) = 0;
             *(namesPtr + 1) = 0;
 
-            namesPtr = strcpy(namesPtr + 2, j->second.c_str()) + strlen(j->second.c_str()) + 1;
-            
+#pragma warning(push)
+#pragma warning(disable: 4996)
+            strcpy(namesPtr + 2, /*importSize - ((namesPtr + 2)- buffer),*/ j->second.c_str());
+#pragma warning(pop)
+        
+            namesPtr += strlen(j->second.c_str()) + 1 + 2;
+
             originalFirstChunkPtr++;
             firstChunkPtr++;
          }

@@ -98,7 +98,7 @@ namespace
             commands[i].mRVA = nextRVA;
             commands[i].mRAW = nextRAW;
 
-            if (!strcmpi(commands[i].mDirective.mName.c_str(), "IMPORT_DIRECTORY"))
+            if (!_strcmpi(commands[i].mDirective.mName.c_str(), "IMPORT_DIRECTORY"))
             {
                resolveImport(commands, commands[i].mRVA);
             }
@@ -138,7 +138,7 @@ namespace
    }
    void putZeroBytes(ostream & output, const SCommand & command)
    {
-      const int currentPosition = output.tellp();
+      const int currentPosition = static_cast<int>(output.tellp());
       const int size = command.mRAW - currentPosition;
       
       assert(size >= 0);
@@ -240,10 +240,10 @@ namespace
       setExterns(commands, clientFile);
       LOG_DEBUG("before:");
       loggingCommands(commands);
-      mutateCommands(commands);
-      mutateCommands(commands);
       //mutateCommands(commands);
       //mutateCommands(commands);
+      mutateCommands(commands);
+      mutateCommands(commands);
 
       LOG_DEBUG("before:");
       loggingCommands(commands);

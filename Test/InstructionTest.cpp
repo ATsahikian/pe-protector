@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "CppUnitTest.h"
 #include "../Library/SCommand.h"
 #include "../PeProtector/Instruction.h"
@@ -159,8 +158,8 @@ namespace Test
       TEST_METHOD(testPutInstructionNOP)
       {
          std::stringstream expectedResult;
-         char characters[] = { 0x90 };
-         expectedResult.write(characters, sizeof(characters));
+         unsigned char characters[] = { 0x90 };
+         expectedResult.write(reinterpret_cast<char *>(characters), sizeof(characters));
 
          std::stringstream result;
 
@@ -174,8 +173,8 @@ namespace Test
       TEST_METHOD(testPutInstructionADD_REG8_IMM8)
       {
          std::stringstream expectedResult;
-         char characters[] = { 0x80, 0xC5, 0x88 };
-         expectedResult.write(characters, sizeof(characters));
+         unsigned char characters[] = { 0x80, 0xC5, 0x88 };
+         expectedResult.write(reinterpret_cast<char *>(characters), sizeof(characters));
 
          std::stringstream result;
 
@@ -197,8 +196,8 @@ namespace Test
       TEST_METHOD(testPutInstructionADD_MEM8_IMM81)
       {
          std::stringstream expectedResult;
-         char characters[] = { 0x80, 0x02, 0x88 };
-         expectedResult.write(characters, sizeof(characters));
+         unsigned char characters[] = { 0x80, 0x02, 0x88 };
+         expectedResult.write(reinterpret_cast<char *>(characters), sizeof(characters));
 
          std::stringstream result;
 
@@ -220,8 +219,8 @@ namespace Test
       TEST_METHOD(testPutInstructionADD_MEM8_IMM82)
       {
          std::stringstream expectedResult;
-         char characters[] = { 0x80, 0x85, 0xFF, 0xFF, 0x00, 0x00, 0x88 };
-         expectedResult.write(characters, sizeof(characters));
+         unsigned char characters[] = { 0x80, 0x85, 0xFF, 0xFF, 0x00, 0x00, 0x88 };
+         expectedResult.write(reinterpret_cast<char *>(characters), sizeof(characters));
 
          std::stringstream result;
 
@@ -243,8 +242,8 @@ namespace Test
       TEST_METHOD(testPutInstructionADD_MEM8_IMM83)
       {
          std::stringstream expectedResult;
-         char characters[] = { 0x80, 0x84, 0x28, 0xFF, 0xFF, 0x00, 0x00, 0x88 };
-         expectedResult.write(characters, sizeof(characters));
+         unsigned char characters[] = { 0x80, 0x84, 0x28, 0xFF, 0xFF, 0x00, 0x00, 0x88 };
+         expectedResult.write(reinterpret_cast<char *>(characters), sizeof(characters));
 
          std::stringstream result;
 
@@ -266,8 +265,8 @@ namespace Test
       TEST_METHOD(testPutInstructionADD_MEM8_IMM84)
       {
          std::stringstream expectedResult;
-         char characters[] = { 0x64, 0x80, 0x84, 0x68, 0xFF, 0xFF, 0x00, 0x00, 0x88 };
-         expectedResult.write(characters, sizeof(characters));
+         unsigned char characters[] = { 0x64, 0x80, 0x84, 0x68, 0xFF, 0xFF, 0x00, 0x00, 0x88 };
+         expectedResult.write(reinterpret_cast<char *>(characters), sizeof(characters));
 
          std::stringstream result;
 
@@ -289,8 +288,8 @@ namespace Test
       TEST_METHOD(testPutInstructionADD_MEM8_IMM85)
       {
          std::stringstream expectedResult;
-         char characters[] = { 0x64, 0x80, 0x84, 0x68, 0xFF, 0xFF, 0x00, 0x00,  0x88 };
-         expectedResult.write(characters, sizeof(characters));
+         unsigned char characters[] = { 0x64, 0x80, 0x84, 0x68, 0xFF, 0xFF, 0x00, 0x00,  0x88 };
+         expectedResult.write(reinterpret_cast<char *>(characters), sizeof(characters));
 
          std::stringstream result;
 
@@ -312,8 +311,8 @@ namespace Test
       TEST_METHOD(testPutInstructionADD_REG32_REG32)
       {
          std::stringstream expectedResult;
-         char characters[] = { 0x01, 0xE8 };
-         expectedResult.write(characters, sizeof(characters));
+         unsigned char characters[] = { 0x01, 0xE8 };
+         expectedResult.write(reinterpret_cast<char *>(characters), sizeof(characters));
 
          std::stringstream result;
 
@@ -335,8 +334,8 @@ namespace Test
       TEST_METHOD(testPutInstructionPrefix)
       {
          std::stringstream expectedResult;
-         char characters[] = { 0xF3, 0x01, 0xE8 };
-         expectedResult.write(characters, sizeof(characters));
+         unsigned char characters[] = { 0xF3, 0x01, 0xE8 };
+         expectedResult.write(reinterpret_cast<char *>(characters), sizeof(characters));
 
          std::stringstream result;
 

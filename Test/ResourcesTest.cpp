@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "CppUnitTest.h"
 #include "../PeProtector/ClientFile.h"
 #include "../PeProtector/Resources.h"

@@ -9,7 +9,7 @@ namespace NPeProtector
 {
    const int gSectionAlignment = 0x1000;
    const int gFileAlignment = 0x200;
-   const int gImageBase = 0x400000;
+   extern int gImageBase;
 
    /**
     * @brief Get size of pe header

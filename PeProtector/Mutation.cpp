@@ -202,39 +202,39 @@ namespace
       {
          if (commands[i].mType == NCommand::INSTRUCTION)
          {
-            switch (commands[i].mInstruction.mType)
-            {
-               case NInstruction::MOV:
-               {
-                  const vector<SCommand> & mutatedCommands = mutateMov(commands[i]);
-                  if (mutatedCommands.size() > 1)
-                  {
-                     commands.erase(commands.begin() + i);
-                     commands.insert(commands.begin() + i, mutatedCommands.begin(), mutatedCommands.end());
-
-                     shiftConstants(commands, i, mutatedCommands.size() - 1);
-                  }
-                  i += mutatedCommands.size() - 1;
-                  break;
-               }
-               case NInstruction::PUSH:
-               {
-                  const vector<SCommand> & mutatedCommands = mutatePush(commands[i]);
-                  if (mutatedCommands.size() > 1)
-                  {
-                     commands.erase(commands.begin() + i);
-                     commands.insert(commands.begin() + i, mutatedCommands.begin(), mutatedCommands.end());
-
-                     shiftConstants(commands, i, mutatedCommands.size() - 1);
-                  }
-                  i += mutatedCommands.size() - 1;
-                  break;
-               }
-               case NInstruction::CALL:
-               {
-                  break;
-               }
-            }
+//             switch (commands[i].mInstruction.mType)
+//             {
+//                case NInstruction::MOV:
+//                {
+//                   const vector<SCommand> & mutatedCommands = mutateMov(commands[i]);
+//                   if (mutatedCommands.size() > 1)
+//                   {
+//                      commands.erase(commands.begin() + i);
+//                      commands.insert(commands.begin() + i, mutatedCommands.begin(), mutatedCommands.end());
+// 
+//                      shiftConstants(commands, i, mutatedCommands.size() - 1);
+//                   }
+//                   i += mutatedCommands.size() - 1;
+//                   break;
+//                }
+//                case NInstruction::PUSH:
+//                {
+//                   const vector<SCommand> & mutatedCommands = mutatePush(commands[i]);
+//                   if (mutatedCommands.size() > 1)
+//                   {
+//                      commands.erase(commands.begin() + i);
+//                      commands.insert(commands.begin() + i, mutatedCommands.begin(), mutatedCommands.end());
+// 
+//                      shiftConstants(commands, i, mutatedCommands.size() - 1);
+//                   }
+//                   i += mutatedCommands.size() - 1;
+//                   break;
+//                }
+//                case NInstruction::CALL:
+//                {
+//                   break;
+//                }
+//             }
             if (i % 5 == 0)
             {
                // insert random instructions!

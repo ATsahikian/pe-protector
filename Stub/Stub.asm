@@ -14,11 +14,11 @@ EXTERN DD externOEP
 SECTION ".text" crwe
 _stubBegin:
 
-   CALL DWORD PTR [KERNEL32.IsDebuggerPresent]
+;   CALL DWORD PTR [KERNEL32.IsDebuggerPresent]
    
-   MOV  EAX,DWORD PTR FS:[18H]
-   MOV  EAX,DWORD PTR [EAX + 30H]
-   MOVZX EAX,BYTE PTR [EAX + 2H]
+;   MOV  EAX,DWORD PTR FS:[18H]
+;   MOV  EAX,DWORD PTR [EAX + 30H]
+;   MOVZX EAX,BYTE PTR [EAX + 2H]
    
    ; test seh begin
    PUSH _sehHandler
@@ -203,29 +203,29 @@ _importDescriptionLoopExit:
    
 ; antiDump:
    ;/*<thisrel this+0x30>*/ /*|0x4|*/ struct _PEB* ProcessEnvironmentBlock;
-   MOV   EAX, DWORD PTR FS:[30h]   ; EAX ->> PEB Struct
+;   MOV   EAX, DWORD PTR FS:[30h]   ; EAX ->> PEB Struct
   
    ;/*<thisrel this+0xc>*/ /*|0x4|*/ struct _PEB_LDR_DATA* Ldr;
-   MOV   EAX, DWORD PTR [EAX + 0CH]  ;EAX->>_PEB_LDR_DATA
+;   MOV   EAX, DWORD PTR [EAX + 0CH]  ;EAX->>_PEB_LDR_DATA
    
    ;/*<thisrel this+0xc>*/ /*|0x8|*/ struct _LIST_ENTRY InLoadOrderModuleList.Flink
-   MOV   EAX, DWORD PTR [EAX + 0CH]  ;EAX->>_LDR_DATA_TABLE_ENTRY
+;   MOV   EAX, DWORD PTR [EAX + 0CH]  ;EAX->>_LDR_DATA_TABLE_ENTRY
 
    ; loop
-   MOV   EBX, externImageBase
-_antiDump_loopStart: 
-   CMP   EBX, DWORD PTR [EAX + 18H]   ;/*<thisrel this + 0x18>*/ /*|0x4|*/ void* DllBase;
-   JNZ   _antiDump_loopNext
+;   MOV   EBX, externImageBase
+;_antiDump_loopStart: 
+;   CMP   EBX, DWORD PTR [EAX + 18H]   ;/*<thisrel this + 0x18>*/ /*|0x4|*/ void* DllBase;
+;   JNZ   _antiDump_loopNext
    ; fix DllBase
-   MOV   DWORD PTR [EAX + 18h], 0     ;/*<thisrel this + 0x18>*/ /*|0x4|*/ void* DllBase;
+;   MOV   DWORD PTR [EAX + 18h], 0     ;/*<thisrel this + 0x18>*/ /*|0x4|*/ void* DllBase;
    ; fix SizeOfImage
-   MOV   DWORD PTR [EAX + 20H], 0          ;/*<thisrel this + 0x20>*/ /*|0x4|*/ unsigned long SizeOfImage;
-   JMP  _antiDump_loopExit
-_antiDump_loopNext:
-   PUSH DWORD PTR [EAX]       ;/*<thisrel this + 0x0>*/ /*|0x8|*/ struct _LIST_ENTRY InLoadOrderLinks.Flink
-   POP  EAX
-   JMP  _antiDump_loopStart
-_antiDump_loopExit:
+;   MOV   DWORD PTR [EAX + 20H], 0          ;/*<thisrel this + 0x20>*/ /*|0x4|*/ unsigned long SizeOfImage;
+;   JMP  _antiDump_loopExit
+;_antiDump_loopNext:
+;   PUSH DWORD PTR [EAX]       ;/*<thisrel this + 0x0>*/ /*|0x8|*/ struct _LIST_ENTRY InLoadOrderLinks.Flink
+;   POP  EAX
+;   JMP  _antiDump_loopStart
+;_antiDump_loopExit:
    
    PUSH 8000H                                          ; MEM_RELEASE 0x8000
    PUSH 0;_compressedFileEnd - _compressedFileBegin      ; dwSize

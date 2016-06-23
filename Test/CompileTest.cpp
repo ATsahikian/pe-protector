@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "CppUnitTest.h"
 #include "../Library/SCommand.h"
 #include "../Compile/CCompile.h"
@@ -119,11 +118,11 @@ namespace Test
 
          Assert::IsTrue(commands[0].mType == NCommand::SECTION);
          Assert::IsTrue(commands[0].mSection.mName == ".text");
-         Assert::IsTrue(commands[0].mSection.mAttributes & NSectionAttributes::CODE);
-         Assert::IsTrue(commands[0].mSection.mAttributes & NSectionAttributes::READ);
-         Assert::IsTrue(commands[0].mSection.mAttributes & NSectionAttributes::EXECUTE);
-         Assert::IsTrue(commands[0].mSection.mAttributes & NSectionAttributes::WRITE);
-         Assert::IsTrue(commands[0].mSection.mAttributes & NSectionAttributes::INITIALIZED);
+         Assert::IsTrue((commands[0].mSection.mAttributes & NSectionAttributes::CODE) != 0);
+         Assert::IsTrue((commands[0].mSection.mAttributes & NSectionAttributes::READ) != 0);
+         Assert::IsTrue((commands[0].mSection.mAttributes & NSectionAttributes::EXECUTE) != 0);
+         Assert::IsTrue((commands[0].mSection.mAttributes & NSectionAttributes::WRITE) != 0);
+         Assert::IsTrue((commands[0].mSection.mAttributes & NSectionAttributes::INITIALIZED) != 0);
       }
 
       TEST_METHOD(testCompileInstruction)

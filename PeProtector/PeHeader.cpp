@@ -194,6 +194,8 @@ namespace
    }
 }
 
+   int gImageBase = 0;
+
    int getHeaderSize()
    {
       return 0x400; //TODO
@@ -210,6 +212,7 @@ namespace
 
       sPeHeader.FileHeader.NumberOfSections = sections.size();
       sPeHeader.OptionalHeader.SizeOfImage = sections.back().VirtualAddress + sections.back().Misc.VirtualSize;
+      sPeHeader.OptionalHeader.ImageBase = clientFile.mImageBase;
       
       const int importPosition = findDirective(commands, "IMPORT_DIRECTORY");
       if (importPosition != -1)

@@ -1,7 +1,7 @@
 #include "ClientFile.h"
 #include "imagehlp.h"
 #include "assert.h"
-#include "aplib\aplib.h"
+#include "..\aplib\aplib.h"
 #include "crtdbg.h"
 
 using std::exception;
@@ -223,13 +223,20 @@ namespace
       {
          if (fileMapping.getNtHeader().OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR].VirtualAddress == 0)
          {
-            result.mIcons = getAllResource(fileMapping, 3/*icon*/);
-            result.mManifest = getFirstResource(fileMapping, 0x18/*manifest*/);
-            result.mGroupIcons = getFirstResource(fileMapping, 0x0E/*group icons*/);
-            result.mCompressed = compressFile(fileMapping);
-            result.mImageBase = fileMapping.getNtHeader().OptionalHeader.ImageBase;
-            result.mImageSize = fileMapping.getNtHeader().OptionalHeader.SizeOfImage;
-            result.mOEP = fileMapping.getNtHeader().OptionalHeader.AddressOfEntryPoint;
+            if (fileMapping.getNtHeader().OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress == 0)
+            {
+               result.mIcons = getAllResource(fileMapping, 3/*icon*/);
+               result.mManifest = getFirstResource(fileMapping, 0x18/*manifest*/);
+               result.mGroupIcons = getFirstResource(fileMapping, 0x0E/*group icons*/);
+               result.mCompressed = compressFile(fileMapping);
+               result.mImageBase = fileMapping.getNtHeader().OptionalHeader.ImageBase;
+               result.mImageSize = fileMapping.getNtHeader().OptionalHeader.SizeOfImage;
+               result.mOEP = fileMapping.getNtHeader().OptionalHeader.AddressOfEntryPoint;
+            }
+            else
+            {
+               throw exception("PeProtector doesn't support files with TLS");
+            }
          }
          else
          {
