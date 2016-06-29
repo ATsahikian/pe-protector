@@ -8,3 +8,4 @@ peProtector.sdf
 *.smp
 *.exp
 PeProtector/Release/PeProtector.res
+Release/
