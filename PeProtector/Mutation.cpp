@@ -1,5 +1,6 @@
 #include "Mutation.h"
 #include "assert.h"
+#include <ctime>
 
 using std::vector;
 
@@ -24,6 +25,20 @@ namespace
       return false;
    }
 
+   NRegister::EType getRandomRegisterForPushPop()
+   {
+      switch (std::rand() % 7)
+      {
+      case 0: return NRegister::EAX;
+      case 1: return NRegister::EBX;
+      case 2: return NRegister::ECX;
+      case 3: return NRegister::EDX;
+      case 4: return NRegister::EBP;
+      case 5: return NRegister::ESI;
+      case 6: return NRegister::EDI;
+      }
+      return NRegister::EAX;
+   }
 
    vector<SCommand> getPushPop()
    {
@@ -33,7 +48,7 @@ namespace
 
       SOperand regOperand;
       regOperand.mType = NOperand::REG32;
-      regOperand.mRegister = NRegister::EAX;
+      regOperand.mRegister = getRandomRegisterForPushPop();
       pushCommand.mInstruction.mOperands.push_back(regOperand);
 
       SCommand popCommand;
@@ -195,55 +210,72 @@ namespace
          }
       }
    }
+  
+   bool isApLibCodeBegin(const SCommand & command)
+   {
+      return command.mNameLabel == "_aP_depack_asm";
+   }
 }
    void mutateCommands(vector<SCommand> & commands)
    {
-      for (unsigned int i = 0; i < commands.size(); ++i)
+      std::srand(static_cast<unsigned int>(std::time(0))); // use current time as seed for random generator
+
+      const int mutatedStep = std::rand() % 9 + 1;
+
+      for (unsigned int i = 0; i < commands.size() && !isApLibCodeBegin(commands[i]); ++i)
       {
          if (commands[i].mType == NCommand::INSTRUCTION)
          {
-//             switch (commands[i].mInstruction.mType)
-//             {
-//                case NInstruction::MOV:
-//                {
-//                   const vector<SCommand> & mutatedCommands = mutateMov(commands[i]);
-//                   if (mutatedCommands.size() > 1)
-//                   {
-//                      commands.erase(commands.begin() + i);
-//                      commands.insert(commands.begin() + i, mutatedCommands.begin(), mutatedCommands.end());
-// 
-//                      shiftConstants(commands, i, mutatedCommands.size() - 1);
-//                   }
-//                   i += mutatedCommands.size() - 1;
-//                   break;
-//                }
-//                case NInstruction::PUSH:
-//                {
-//                   const vector<SCommand> & mutatedCommands = mutatePush(commands[i]);
-//                   if (mutatedCommands.size() > 1)
-//                   {
-//                      commands.erase(commands.begin() + i);
-//                      commands.insert(commands.begin() + i, mutatedCommands.begin(), mutatedCommands.end());
-// 
-//                      shiftConstants(commands, i, mutatedCommands.size() - 1);
-//                   }
-//                   i += mutatedCommands.size() - 1;
-//                   break;
-//                }
-//                case NInstruction::CALL:
-//                {
-//                   break;
-//                }
-//             }
-            if (i % 5 == 0)
+            switch (commands[i].mInstruction.mType)
+            {
+               case NInstruction::MOV:
+               {
+                  if (std::rand() % 2 == 0)
+                  {
+                     const vector<SCommand> & mutatedCommands = mutateMov(commands[i]);
+                     if (mutatedCommands.size() > 1)
+                     {
+                        commands.erase(commands.begin() + i);
+                        commands.insert(commands.begin() + i, mutatedCommands.begin(), mutatedCommands.end());
+
+                        shiftConstants(commands, i, mutatedCommands.size() - 1);
+                     }
+                     i += mutatedCommands.size() - 1;
+                  }
+                  break;
+               }
+               case NInstruction::PUSH:
+               {
+                  if (std::rand() % 2 == 0)
+                  {
+                     const vector<SCommand> & mutatedCommands = mutatePush(commands[i]);
+                     if (mutatedCommands.size() > 1)
+                     {
+                        commands.erase(commands.begin() + i);
+                        commands.insert(commands.begin() + i, mutatedCommands.begin(), mutatedCommands.end());
+
+                        shiftConstants(commands, i, mutatedCommands.size() - 1);
+                     }
+                     i += mutatedCommands.size() - 1;
+                  }
+                  break;
+               }
+               case NInstruction::CALL:
+               {
+                  break;
+               }
+            }
+            if (i % mutatedStep == 0 && 
+               (commands[i].mInstruction.mType != NInstruction::CMP) && 
+               (commands[i].mInstruction.mType != NInstruction::TEST))
             {
                // insert random instructions!
                const vector<SCommand> & mutatedCommands = getPushPop();
                if (mutatedCommands.size() > 1)
                {
-                  commands.insert(commands.begin() + i, mutatedCommands.begin(), mutatedCommands.end());
+                  commands.insert(commands.begin() + i + 1, mutatedCommands.begin(), mutatedCommands.end());
 
-                  shiftConstants(commands, i, mutatedCommands.size());
+                  shiftConstants(commands, i + 1, mutatedCommands.size());
                }
                i += 2;
             }

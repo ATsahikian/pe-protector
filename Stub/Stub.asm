@@ -14,8 +14,7 @@ EXTERN DD externOEP
 SECTION ".text" crwe
 _stubBegin:
 
-;   CALL DWORD PTR [KERNEL32.IsDebuggerPresent]
-   
+ 
 ;   MOV  EAX,DWORD PTR FS:[18H]
 ;   MOV  EAX,DWORD PTR [EAX + 30H]
 ;   MOVZX EAX,BYTE PTR [EAX + 2H]
@@ -38,8 +37,17 @@ _sehHandler:
 ; ESP + 8	pointer to ERR
 ; ESP + CH	pointer to CONTEXT
 ; ESP + 10H	Param
+   
+   ; first debug check
+   MOV EAX, 10 ; fake instruction
    CMP BYTE PTR [_sehHandler], 0CCH
    JZ _stubBegin
+   
+   ; second debug check
+   CALL DWORD PTR [KERNEL32.IsDebuggerPresent]
+   CMP EAX, 1
+	JZ _stubBegin
+
    MOV  EAX, DWORD PTR [ESP + 0CH]
    ; +B0 eax register
    MOV DWORD PTR [EAX + 0B0H], _begin
@@ -242,7 +250,7 @@ _importDescriptionLoopExit:
    JMP  DWORD PTR [EBP + ddVirtualFree] ; BOOL VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD dwFreeType);
   
    
-	; goto the original entry point
+   ; goto the original entry point
 ;   MOV  EAX, externImageBase
 ;   ADD  EAX, externOEP
 ;   JMP  EAX

@@ -8,5 +8,13 @@ peProtector.sdf
 *.smp
 *.exp
 PeProtector/Release/PeProtector.res
-Release/
 peProtector.opensdf
+Compile/Release/
+Library/Release/
+LogLibrary/Release/
+PeProtector/Release/
+Release/Library.lib
+Release/LogLibrary.lib
+Release/Test.lib
+Release/Test.pdb
+Test/Release/vc120.pdb
