@@ -9,3 +9,4 @@ peProtector.sdf
 *.exp
 PeProtector/Release/PeProtector.res
 Release/
+peProtector.opensdf

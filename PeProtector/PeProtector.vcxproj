@@ -54,6 +54,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -84,7 +85,9 @@
   <ItemGroup>
     <ClCompile Include="Data.cpp" />
     <ClCompile Include="Import.cpp" />
-    <ClCompile Include="Instruction.cpp" />
+    <ClCompile Include="Instruction.cpp">
+      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
     <ClCompile Include="InstructionModRM.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mutation.cpp" />

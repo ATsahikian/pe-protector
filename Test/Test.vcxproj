@@ -42,12 +42,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
     <IncludePath>C:\Users\atsahikian\Documents\peprotector\peProtector\peProtector\PeProtector;$(IncludePath)</IncludePath>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -58,12 +58,13 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\git\PeProtector\Compile\Debug;D:\git\PeProtector\PeProtector\Debug;$(MSBuildStartupDirectory)\Compile\Debug\;$(MSBuildStartupDirectory)\PeProtector\Debug\;$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(OutDir)Library.lib;$(OutDir)LogLibrary.lib;Instruction.obj;Import.obj;InstructionModRM.obj;Opcodes.obj;Mutation.obj;Resources.obj;ClientFile.obj;PeHeader.obj;Dbghelp.lib;..\aplib\aplib.lib;CLexicalAnalizer.obj;CCompile.obj;Data.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(OutDir)Library.lib;$(OutDir)LogLibrary.lib;$(SolutionDir)PeProtector\$(Configuration)\Instruction.obj;$(SolutionDir)PeProtector\$(Configuration)\Import.obj;$(SolutionDir)PeProtector\$(Configuration)\Resources.obj;$(SolutionDir)PeProtector\$(Configuration)\PeHeader.obj;$(SolutionDir)PeProtector\$(Configuration)\InstructionModRM.obj;$(SolutionDir)PeProtector\$(Configuration)\Opcodes.obj;$(SolutionDir)PeProtector\$(Configuration)\Data.obj;$(SolutionDir)PeProtector\$(Configuration)\Mutation.obj;$(SolutionDir)Compile\$(Configuration)\CCompile.obj;$(SolutionDir)Compile\$(Configuration)\CLexicalAnalizer.obj</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -83,7 +84,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(OutDir)Library.lib;$(OutDir)LogLibrary.lib;Instruction.obj;Import.obj;InstructionModRM.obj;Opcodes.obj;Mutation.obj;Resources.obj;ClientFile.obj;PeHeader.obj;Dbghelp.lib;..\aplib\aplib.lib;CLexicalAnalizer.obj;CCompile.obj;Data.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)Library.lib;$(OutDir)LogLibrary.lib;$(SolutionDir)PeProtector\$(Configuration)\Instruction.obj;$(SolutionDir)PeProtector\$(Configuration)\Import.obj;$(SolutionDir)PeProtector\$(Configuration)\Resources.obj;$(SolutionDir)PeProtector\$(Configuration)\PeHeader.obj;$(SolutionDir)PeProtector\$(Configuration)\InstructionModRM.obj;$(SolutionDir)PeProtector\$(Configuration)\Opcodes.obj;$(SolutionDir)PeProtector\$(Configuration)\Data.obj;$(SolutionDir)PeProtector\$(Configuration)\Mutation.obj;$(SolutionDir)Compile\$(Configuration)\CCompile.obj;$(SolutionDir)Compile\$(Configuration)\CLexicalAnalizer.obj</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
