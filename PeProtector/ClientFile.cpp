@@ -114,6 +114,7 @@ namespace
             return (IMAGE_RESOURCE_DIRECTORY *)((char*)base + entries[i].OffsetToDirectory);
          }
       }
+      return 0;
    }
    
    vector<vector<char> > getAllResource(const CFileMapping & fileMapping, const int id)
@@ -218,13 +219,27 @@ namespace
       SClientFile result;
       
       CFileMapping fileMapping(filename);
-      result.mIcons = getAllResource(fileMapping, 3/*icon*/);
-      result.mManifest = getFirstResource(fileMapping, 0x18/*manifest*/);
-      result.mGroupIcons = getFirstResource(fileMapping, 0x0E/*group icons*/);
-      result.mCompressed = compressFile(fileMapping);
-      result.mImageBase = fileMapping.getNtHeader().OptionalHeader.ImageBase;
-      result.mImageSize = fileMapping.getNtHeader().OptionalHeader.SizeOfImage;
-      result.mOEP = fileMapping.getNtHeader().OptionalHeader.AddressOfEntryPoint;
+      if (fileMapping.getNtHeader().OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC)
+      {
+         if (fileMapping.getNtHeader().OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR].VirtualAddress == 0)
+         {
+            result.mIcons = getAllResource(fileMapping, 3/*icon*/);
+            result.mManifest = getFirstResource(fileMapping, 0x18/*manifest*/);
+            result.mGroupIcons = getFirstResource(fileMapping, 0x0E/*group icons*/);
+            result.mCompressed = compressFile(fileMapping);
+            result.mImageBase = fileMapping.getNtHeader().OptionalHeader.ImageBase;
+            result.mImageSize = fileMapping.getNtHeader().OptionalHeader.SizeOfImage;
+            result.mOEP = fileMapping.getNtHeader().OptionalHeader.AddressOfEntryPoint;
+         }
+         else
+         {
+            throw exception("IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR != 0");
+         }
+      }
+      else
+      {
+         throw exception("OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR32_MAGIC");
+      }
       return result;
    }
 }

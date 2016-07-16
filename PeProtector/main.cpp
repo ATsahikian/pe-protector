@@ -22,27 +22,27 @@ int main(int argc, char * argv[], char * env[])
    {
       if (CopyFileA(argv[1], (argv[1] + string(".bak")).c_str(), FALSE))
       {
-         const NPeProtector::SClientFile clientFile = NPeProtector::getPeFileInfo(argv[1]);
-
-         ofstream fileStream(argv[1], ios_base::binary | ios_base::trunc);
-
-         if (fileStream.is_open())
+         try
          {
-            try
+            const NPeProtector::SClientFile clientFile = NPeProtector::getPeFileInfo(argv[1]);
+
+            ofstream fileStream(argv[1], ios_base::binary | ios_base::trunc);
+
+            if (fileStream.is_open())
             {
                LOG_INITIALIZE(string(argv[0]) + ".log");
 
                NPeProtector::protectPe(fileStream, clientFile);
             }
-            catch (const exception & e)
+            else
             {
-               printf("Failed to protect file, %s", e.what());
+               printf("Failed to open file %s", argv[1]);
                exitCode = 1;
             }
          }
-         else
+         catch (const exception & e)
          {
-            printf("Failed to open file %s", argv[1]);
+            printf("Failed to protect file, %s", e.what());
             exitCode = 1;
          }
       }
