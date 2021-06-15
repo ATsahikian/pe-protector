@@ -1,3 +1,5 @@
+find_package(pe-parse CONFIG REQUIRED)
+
 add_executable(pe-protector 
     main.cpp
     ClientFile.h
@@ -26,4 +28,5 @@ add_executable(pe-protector
 #TODO: asm file, bin file, custor rule to compile asm to bin
 target_link_libraries(pe-protector PRIVATE
     Library
-    LogLibrary)
+    LogLibrary
+    pe-parse::pe-parser-library)
