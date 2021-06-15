@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <iosfwd>
 #include <sstream>
+// TODO fix path
 #include "../LogLibrary/CLog.h"
 #include "CLexicalAnalizer.h"
 

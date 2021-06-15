@@ -3,6 +3,7 @@ Debug/
 Doxyfile
 ipch/
 peProtector.sdf
+.vscode
 *.tlog
 *.smproj
 *.smp

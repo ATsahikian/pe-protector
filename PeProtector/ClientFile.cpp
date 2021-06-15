@@ -1,9 +1,16 @@
 #include "ClientFile.h"
+//#include <winnt.h>
+//#include <crtdbg>
+//#include <imagehlp>
+#include <windows.h>
+//#include <Wincrypt>
+#include <dbghelp.h>
+#include <fileapi.h>
+#include <winbase.h>
+//#include <winnt.h>
 #include <stdexcept>
 #include "../aplib/aplib.h"
 #include "assert.h"
-#include "crtdbg.h"
-#include "imagehlp.h"
 
 using std::exception;
 using std::vector;

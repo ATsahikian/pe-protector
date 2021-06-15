@@ -1,5 +1,3 @@
-find_package(pe-parse CONFIG REQUIRED)
-
 add_executable(pe-protector 
     main.cpp
     ClientFile.h
@@ -25,8 +23,11 @@ add_executable(pe-protector
     Resources.h
     Resources.cpp)
 
+target_link_options (pe-protector PRIVATE "/SAFESEH:NO")
+
 #TODO: asm file, bin file, custor rule to compile asm to bin
 target_link_libraries(pe-protector PRIVATE
     Library
     LogLibrary
-    pe-parse::pe-parser-library)
+    Dbghelp
+    "${CMAKE_SOURCE_DIR}/aplib/aplib.lib")

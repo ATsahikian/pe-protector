@@ -1,11 +1,8 @@
 #include "CLexicalAnalizer.h"
 #include <assert.h>
-#include <stdio.h>
-#include <strings.h>
 #include <iostream>
-#include <stdexcept>
 #include <string>
-#include "../Library/Types.h"
+#include "..\library\Types.h"
 #include "ctype.h"
 
 using std::basic_istream;
@@ -59,7 +56,7 @@ vector<string> splitLine(string line) {
       // add string
       const size_t quotePosition = line.find("\"", beginStringPosition + 1);
       if (quotePosition == string::npos) {
-        throw std::runtime_error{"wrong quote"};
+        throw exception("wrong quote");
       } else {
         const size_t endStringPosition = quotePosition + 1;
         result.push_back(line.substr(beginStringPosition,
@@ -117,7 +114,7 @@ SToken getToken(const string& stringToken) {
 
   // scan for standard tokens
   for (int i = 0; i < ARRAY_SIZE(sCategories); ++i) {
-    if (!strcasecmp(stringToken.c_str(), sCategories[i])) {
+    if (!_strcmpi(stringToken.c_str(), sCategories[i])) {
       return SToken(NCategory::EType(i));
     }
   }
@@ -126,35 +123,35 @@ SToken getToken(const string& stringToken) {
 
   // scan for instructions
   for (int i = 0; i < NInstruction::gSize; ++i) {
-    if (!strcasecmp(stringToken.c_str(), NInstruction::gStrings[i])) {
+    if (!_strcmpi(stringToken.c_str(), NInstruction::gStrings[i])) {
       return SToken(NCategory::INSTRUCTION, i);
     }
   }
 
   // scan for registers
   for (int i = 0; i < NRegister::gSize; ++i) {
-    if (!strcasecmp(stringToken.c_str(), NRegister::gStrings[i])) {
+    if (!_strcmpi(stringToken.c_str(), NRegister::gStrings[i])) {
       return SToken(NCategory::REGISTER, i);
     }
   }
 
   // scan for prefixes
   for (int i = 0; i < NPrefix::gSize; ++i) {
-    if (!strcasecmp(stringToken.c_str(), NPrefix::gStrings[i])) {
+    if (!_strcmpi(stringToken.c_str(), NPrefix::gStrings[i])) {
       return SToken(NCategory::PREFIX, i);
     }
   }
 
   // scan for data types
   for (int i = 0; i < NDataType::gSize; ++i) {
-    if (!strcasecmp(stringToken.c_str(), NDataType::gStrings[i])) {
+    if (!_strcmpi(stringToken.c_str(), NDataType::gStrings[i])) {
       return SToken(NCategory::DATA_TYPE, i);
     }
   }
 
   // scan for segments
   for (int i = 0; i < NSegment::gSize; ++i) {
-    if (!strcasecmp(stringToken.c_str(), NSegment::gStrings[i])) {
+    if (!_strcmpi(stringToken.c_str(), NSegment::gStrings[i])) {
       return SToken(NCategory::SEGMENT, i);
     }
   }
@@ -176,7 +173,7 @@ SToken getToken(const string& stringToken) {
     size_t index = 0;
     const unsigned int constant = stoul(digits, &index, base);
     if (index != digits.size()) {
-      throw std::runtime_error{"wrong number : " + stringToken};
+      throw exception(("wrong number : " + stringToken).c_str());
     }
     return SToken(NCategory::CONSTANT, 0, "", constant);
   }
