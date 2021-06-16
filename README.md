@@ -10,4 +10,4 @@ PeProtector protects executable files
 ![Your Repository's Stats](https://github-readme-stats.vercel.app/api/top-langs/?username=atsahikian&theme=blue-green)
 
 <img src="https://komarev.com/ghpvc/?username=atsahikian"/>
-[![Build Status](https://travis-ci.com/ATsahikian/PeProtector.svg?branch=master)](https://travis-ci.com/ATsahikian/PeProtector)
+![Build Status](https://travis-ci.com/ATsahikian/PeProtector.svg?branch=master)](https://travis-ci.com/ATsahikian/PeProtector)
