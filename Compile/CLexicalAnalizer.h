@@ -51,37 +51,22 @@ extern const char* const gStrings[];
  */
 struct SToken {
   /**
-   * @brief Constructor
-   */
-  SToken();
-  /**
-   * @brief Constructor
-   * @param[in] type type of token
-   * @param[in] index it is used only for group tokens
-   * @param[in] name it is used only for types: NAME or STRING
-   * @param[in] constant it is used only for type CONSTANT
-   */
-  SToken(NCategory::EType type,
-         int index = 0,
-         std::string name = std::string(),
-         uint32_t constant = 0);
-  /**
    * @brief Type of token
    */
-  NCategory::EType mType;
+  NCategory::EType mType{};
   /**
    * @brief Index in group, it's used only for group types: DATA_TYPE, PREFIX,
    * INSTRUCTION, REGISTER, SEGMENT
    */
-  int mIndex;
+  int mIndex{};
   /**
    * @brief Contains name or string, it's used only for types: NAME or STRING
    */
-  std::string mData;
+  std::string mData{};
   /**
    * @brief Contains constant value, it's used only for type CONSTANT
    */
-  uint32_t mConstant;
+  uint32_t mConstant{};
 };
 
 /**

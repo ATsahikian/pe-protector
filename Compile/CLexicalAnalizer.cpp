@@ -88,7 +88,7 @@ vector<string> splitLine(string line) {
   return result;
 }
 
-vector<string> splitFile(istream& input) {
+vector<string> splitLines(istream& input) {
   vector<string> lines;
   string line;
   while (getline(input, line)) {
@@ -100,7 +100,7 @@ vector<string> splitFile(istream& input) {
 vector<vector<string> > split(istream& input) {
   vector<vector<string> > tokens;
 
-  const vector<string>& lines = splitFile(input);
+  const vector<string>& lines = splitLines(input);
 
   for (unsigned int i = 0; i < lines.size(); ++i) {
     tokens.push_back(splitLine(lines[i]));
@@ -115,7 +115,7 @@ SToken getToken(const string& stringToken) {
   // scan for standard tokens
   for (int i = 0; i < sCategories.size(); ++i) {
     if (!_strcmpi(stringToken.c_str(), sCategories[i])) {
-      return SToken(NCategory::EType(i));
+      return SToken{NCategory::EType(i)};
     }
   }
 
@@ -124,41 +124,41 @@ SToken getToken(const string& stringToken) {
   // scan for instructions
   for (int i = 0; i < NInstruction::gSize; ++i) {
     if (!_strcmpi(stringToken.c_str(), NInstruction::gStrings[i])) {
-      return SToken(NCategory::INSTRUCTION, i);
+      return SToken{NCategory::INSTRUCTION, i};
     }
   }
 
   // scan for registers
   for (int i = 0; i < NRegister::gSize; ++i) {
     if (!_strcmpi(stringToken.c_str(), NRegister::gStrings[i])) {
-      return SToken(NCategory::REGISTER, i);
+      return SToken{NCategory::REGISTER, i};
     }
   }
 
   // scan for prefixes
   for (int i = 0; i < NPrefix::gSize; ++i) {
     if (!_strcmpi(stringToken.c_str(), NPrefix::gStrings[i])) {
-      return SToken(NCategory::PREFIX, i);
+      return SToken{NCategory::PREFIX, i};
     }
   }
 
   // scan for data types
   for (int i = 0; i < NDataType::gSize; ++i) {
     if (!_strcmpi(stringToken.c_str(), NDataType::gStrings[i])) {
-      return SToken(NCategory::DATA_TYPE, i);
+      return SToken{NCategory::DATA_TYPE, i};
     }
   }
 
   // scan for segments
   for (int i = 0; i < NSegment::gSize; ++i) {
     if (!_strcmpi(stringToken.c_str(), NSegment::gStrings[i])) {
-      return SToken(NCategory::SEGMENT, i);
+      return SToken{NCategory::SEGMENT, i};
     }
   }
 
   if (stringToken[0] == '"') {
-    return SToken(NCategory::STRING, 0,
-                  stringToken.substr(1, stringToken.size() - 2));
+    return SToken{NCategory::STRING, 0,
+                  stringToken.substr(1, stringToken.size() - 2)};
   }
 
   if (isdigit(stringToken[0])) {
@@ -175,10 +175,10 @@ SToken getToken(const string& stringToken) {
     if (index != digits.size()) {
       throw exception(("wrong number : " + stringToken).c_str());
     }
-    return SToken(NCategory::CONSTANT, 0, "", constant);
+    return SToken{NCategory::CONSTANT, 0, "", constant};
   }
 
-  return SToken(NCategory::NAME, 0, stringToken);
+  return SToken{NCategory::NAME, 0, stringToken};
 }
 }  // namespace
 
@@ -206,14 +206,6 @@ const char* const gStrings[] = {
     "NAME", "STRING", "CONSTANT"};
 const int gSize = ARRAY_SIZE(gStrings);
 }  // namespace NCategory
-
-SToken::SToken() : mType(), mIndex(), mData(), mConstant() {}
-
-SToken::SToken(const NCategory::EType type,
-               int index /*= 0*/,
-               string name /*= string()*/,
-               uint32_t constant /*= 0*/)
-    : mType(type), mIndex(index), mData(name), mConstant(constant) {}
 
 bool isMatch(const vector<SToken>& tokens,
              const vector<NCategory::EType>& categories) {

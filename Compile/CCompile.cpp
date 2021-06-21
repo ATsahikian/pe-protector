@@ -81,11 +81,9 @@ int findToken(const vector<SToken>& tokens,
   return -1;
 }
 
-vector<SToken> getSubTokens(
-    const vector<SToken>& tokens,
-    const int firstIndex,
-    const int length /*= -1*/)  // �������� � ������� ��� -1
-{
+vector<SToken> getSubTokens(const vector<SToken>& tokens,
+                            const int firstIndex,
+                            const int length /*= -1*/) {
   return vector<SToken>(
       tokens.begin() + firstIndex,
       length == -1 ? tokens.end() : tokens.begin() + firstIndex + length);
