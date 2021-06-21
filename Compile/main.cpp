@@ -13,14 +13,13 @@
 #include "CCompile.h"
 #include "CLexicalAnalizer.h"
 
-using std::basic_istream;
-using std::basic_ostream;
-using std::char_traits;
 using std::cout;
 using std::exception;
 using std::ifstream;
 using std::ios_base;
+using std::istream;
 using std::ofstream;
+using std::ostream;
 using std::ostringstream;
 using std::string;
 using std::vector;
@@ -35,7 +34,6 @@ int main(int argc, char* argv[], char* env[]) {
     try {
       ifstream file(argv[1]);
       if (file.is_open()) {
-        // todo �������� �� ����������! �� ������!
         const vector<NPeProtector::SCommand>& commands =
             NPeProtector::compile(file);
 

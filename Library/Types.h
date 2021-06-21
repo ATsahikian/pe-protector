@@ -1,5 +1,4 @@
-#ifndef TYPES_H
-#define TYPES_H
+#pragma once
 
 namespace NPeProtector {
 /**
@@ -146,5 +145,3 @@ extern const int gSize;
 extern const char* const gStrings[];
 }  // namespace NInstruction
 }  // namespace NPeProtector
-
-#endif

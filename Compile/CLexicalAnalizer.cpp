@@ -1,14 +1,14 @@
 #include "CLexicalAnalizer.h"
 #include <assert.h>
+#include <array>
 #include <iostream>
 #include <string>
 #include "..\library\Types.h"
 #include "ctype.h"
 
-using std::basic_istream;
-using std::char_traits;
 using std::exception;
 using std::getline;
+using std::istream;
 using std::stoul;
 using std::string;
 using std::vector;
@@ -18,12 +18,12 @@ using std::vector;
 namespace NPeProtector {
 namespace {
 // todo move to impl
-const char* const sCategories[] = {",",
-                                   //      ".",
-                                   ":", "-", "+", "(", ")", "[", "]", "*",
-                                   // keywords
-                                   "IMPORT", "EXTERN", "DUP", "PTR", "SECTION",
-                                   "DIRECTIVE"};
+constexpr std::array sCategories = {",",
+                                    //      ".",
+                                    ":", "-", "+", "(", ")", "[", "]", "*",
+                                    // keywords
+                                    "IMPORT", "EXTERN", "DUP", "PTR", "SECTION",
+                                    "DIRECTIVE"};
 
 vector<string> splitLine(string line) {
   vector<string> result;
@@ -88,7 +88,7 @@ vector<string> splitLine(string line) {
   return result;
 }
 
-vector<string> splitFile(basic_istream<char, char_traits<char> >& input) {
+vector<string> splitFile(istream& input) {
   vector<string> lines;
   string line;
   while (getline(input, line)) {
@@ -97,7 +97,7 @@ vector<string> splitFile(basic_istream<char, char_traits<char> >& input) {
   return lines;
 }
 
-vector<vector<string> > split(basic_istream<char, char_traits<char> >& input) {
+vector<vector<string> > split(istream& input) {
   vector<vector<string> > tokens;
 
   const vector<string>& lines = splitFile(input);
@@ -113,7 +113,7 @@ SToken getToken(const string& stringToken) {
   assert(!stringToken.empty());
 
   // scan for standard tokens
-  for (int i = 0; i < ARRAY_SIZE(sCategories); ++i) {
+  for (int i = 0; i < sCategories.size(); ++i) {
     if (!_strcmpi(stringToken.c_str(), sCategories[i])) {
       return SToken(NCategory::EType(i));
     }
@@ -230,7 +230,7 @@ bool isMatch(const vector<SToken>& tokens,
   return result;
 }
 
-vector<vector<SToken> > parse(basic_istream<char, char_traits<char> >& input) {
+vector<vector<SToken> > parse(istream& input) {
   const vector<vector<string> >& tokens = split(input);
 
   vector<vector<SToken> > result;

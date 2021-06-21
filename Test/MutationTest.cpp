@@ -19,8 +19,8 @@ BOOST_AUTO_TEST_CASE(testMutateCommandsMov) {
   operand2.mType = NOperand::REG32;
   operand2.mRegister = NRegister::EBX;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::MOV,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::NON, NInstruction::MOV, {operand1, operand2}};
 
   SCommand movCommand;
   movCommand.mType = NCommand::INSTRUCTION;
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(testMutateCommandsPush) {
   operand1.mType = NOperand::REG32;
   operand1.mRegister = NRegister::EAX;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::PUSH, {operand1});
+  SInstruction instruction{NPrefix::NON, NInstruction::PUSH, {operand1}};
 
   SCommand pushCommand;
   pushCommand.mType = NCommand::INSTRUCTION;

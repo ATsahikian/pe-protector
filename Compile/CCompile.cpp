@@ -6,9 +6,8 @@
 #include "../LogLibrary/CLog.h"
 #include "CLexicalAnalizer.h"
 
-using std::basic_istream;
-using std::char_traits;
 using std::exception;
+using std::istream;
 using std::ostringstream;
 using std::string;
 using std::vector;
@@ -142,7 +141,7 @@ SConstant createConstant(const vector<SCommand>& commands,
     unsigned int i = 0;
     if (tokens[i].mType == NCategory::NAME) {
       result.mLabels.push_back(
-          SLabel(NSign::PLUS, findLabel(commands, tokens[i].mData)));
+          SLabel{NSign::PLUS, findLabel(commands, tokens[i].mData)});
       ++i;
     } else if (tokens[i].mType == NCategory::CONSTANT) {
       result.mValue = tokens[i].mConstant;
@@ -163,7 +162,7 @@ SConstant createConstant(const vector<SCommand>& commands,
 
       if (tokens[i].mType == NCategory::NAME) {
         result.mLabels.push_back(
-            SLabel(sign, findLabel(commands, tokens[i].mData)));
+            SLabel{sign, findLabel(commands, tokens[i].mData)});
       } else if (tokens[i].mType == NCategory::CONSTANT) {
         if (sign == NSign::PLUS) {
           result.mValue += tokens[i].mConstant;
@@ -598,7 +597,7 @@ void loggingTokens(const vector<vector<NPeProtector::SToken> >& tokens) {
 }
 }  // namespace
 
-vector<SCommand> compile(basic_istream<char, char_traits<char> >& input) {
+vector<SCommand> compile(std::istream& input) {
   vector<SCommand> result;
 
   const vector<vector<NPeProtector::SToken> >& tokens = parse(input);

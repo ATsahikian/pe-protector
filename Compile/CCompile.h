@@ -1,5 +1,4 @@
-#ifndef CCOMPILE_H
-#define CCOMPILE_H
+#pragma once
 
 #include <iosfwd>
 #include <istream>
@@ -12,8 +11,5 @@ namespace NPeProtector {
  * @param[in] input character stream of source code
  * @return Array of SCommand
  */
-std::vector<SCommand> compile(
-    std::basic_istream<char, std::char_traits<char> >& input);
+std::vector<SCommand> compile(std::istream& input);
 }  // namespace NPeProtector
-
-#endif

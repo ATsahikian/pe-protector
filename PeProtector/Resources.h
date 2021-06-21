@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../Library/SCommand.h"
 #include "ClientFile.h"
 #include "iosfwd"

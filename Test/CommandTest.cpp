@@ -47,8 +47,8 @@ BOOST_AUTO_TEST_CASE(testSerializationData) {
 
   std::vector<SLabel> labels;
   std::vector<SConstant> constants = {
-      SConstant(labels, 33), SConstant(labels, 34), SConstant(labels, 35)};
-  command.mData = SData("", 4, constants, 1);
+      SConstant{labels, 33}, SConstant{labels, 34}, SConstant{labels, 35}};
+  command.mData = SData{"", 4, constants, 1};
 
   std::stringstream result;
   serialize(result, command);
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(testSerializationInstruction) {
   operand2.mConstant.mValue = 0x88;
 
   command.mInstruction =
-      SInstruction(NPrefix::NON, NInstruction::ADD, {operand1, operand2});
+      SInstruction{NPrefix::NON, NInstruction::ADD, {operand1, operand2}};
 
   std::stringstream result;
   serialize(result, command);

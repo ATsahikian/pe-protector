@@ -1,5 +1,4 @@
-#ifndef PE_FILE_H
-#define PE_FILE_H
+#pragma once
 
 #include <cstdint>
 #include <vector>
@@ -46,5 +45,3 @@ struct SClientFile {
  */
 SClientFile getPeFileInfo(const char* filename);
 }  // namespace NPeProtector
-
-#endif

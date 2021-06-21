@@ -2,9 +2,8 @@
 #include <sstream>
 #include "../LogLibrary/CLog.h"
 
-using std::basic_istream;
-using std::basic_ostream;
-using std::char_traits;
+using std::istream;
+using std::ostream;
 using std::ostringstream;
 using std::string;
 using std::vector;
@@ -101,126 +100,28 @@ string toString(const SInstruction& instruction) {
   return result.str();
 }
 }  // namespace
-SLabel::SLabel() : mSign(), mIndex() {}
 
-SLabel::SLabel(const NSign::EType sign, const int index)
-    : mSign(sign), mIndex(index) {}
-
-SConstant::SConstant() : mLabels(), mValue() {}
-
-SConstant::SConstant(const std::vector<SLabel>& labels, const uint32_t value)
-    : mLabels(labels), mValue(value) {}
-
-SMemory::SMemory()
-    : mRegisters(), mScale(), mSegment(NSegment::NON), mConstant() {}
-
-SMemory::SMemory(const std::vector<NRegister::EType>& registers,
-                 const int scale,
-                 const NSegment::EType segment,
-                 const SConstant& constant)
-    : mRegisters(registers),
-      mScale(scale),
-      mSegment(segment),
-      mConstant(constant) {}
-
-SOperand::SOperand()
-    : mType(NOperand::NON), mMemory(), mRegister(), mConstant() {}
-
-SOperand::SOperand(const NOperand::EType type,
-                   const SMemory& memory,
-                   const NRegister::EType _register,
-                   const SConstant& constant)
-    : mType(type), mMemory(memory), mRegister(_register), mConstant(constant) {}
-
-SInstruction::SInstruction()
-    : mPrefix(NPrefix::NON), mType(), mOperands(), mTrash() {}
-
-SInstruction::SInstruction(const NPrefix::EType prefix,
-                           const NInstruction::EType type,
-                           const std::vector<SOperand>& operands)
-    : mPrefix(prefix), mType(type), mOperands(operands), mTrash() {}
-
-SData::SData() : mName(), mSizeData(), mConstants(), mCount() {}
-
-SData::SData(const std::string& name,
-             const int sizeData,
-             const std::vector<SConstant>& constants,
-             const int count)
-    : mName(name), mSizeData(sizeData), mConstants(constants), mCount(count) {}
-
-SImport::SImport() : mDllName(), mFunctionName() {}
-
-SImport::SImport(const std::string& dllName, const std::string& functionName)
-    : mDllName(dllName), mFunctionName(functionName) {}
-
-SSection::SSection() : mName(), mAttributes() {}
-
-SSection::SSection(const std::string& name, const int attributes)
-    : mName(name), mAttributes(attributes) {}
-
-SDirective::SDirective() : mName(), mDirectorySize() {}
-
-SDirective::SDirective(const std::string& name, const int directorySize)
-    : mName(name), mDirectorySize(directorySize) {}
-
-SCommand::SCommand()
-    : mType(NCommand::END),
-      mRVA(),
-      mRAW(),
-      mNameLabel(),
-      mNumberLine(),
-      mInstruction(),
-      mData(),
-      mDirective(),
-      mImport(),
-      mSection() {}
-
-SCommand::SCommand(const NCommand::EType type,
-                   const uint32_t RVA,
-                   const uint32_t RAW,
-                   const std::string& nameLabel,
-                   const int numberLine,
-                   const SInstruction& instruction,
-                   const SData& data,
-                   const SDirective& directive,
-                   const SImport& import,
-                   const SSection& section)
-    : mType(type),
-      mRVA(RVA),
-      mRAW(RAW),
-      mNameLabel(nameLabel),
-      mNumberLine(numberLine),
-      mInstruction(instruction),
-      mData(data),
-      mDirective(directive),
-      mImport(import),
-      mSection(section) {}
-
-void deserialize(basic_istream<char, char_traits<char> >& input, char& value) {
+void deserialize(istream& input, char& value) {
   input.read(&value, sizeof(value));
 }
 
-void serialize(basic_ostream<char, char_traits<char> >& output,
-               const char value) {
+void serialize(ostream& output, const char value) {
   output.write(&value, sizeof(value));
 }
 
-void deserialize(basic_istream<char, char_traits<char> >& input,
-                 NRegister::EType& value) {
+void deserialize(istream& input, NRegister::EType& value) {
   input.read((char*)(&value), sizeof(value));
 }
 
-void deserialize(basic_istream<char, char_traits<char> >& input, int& value) {
+void deserialize(istream& input, int& value) {
   input.read((char*)(&value), sizeof(value));
 }
 
-void serialize(basic_ostream<char, char_traits<char> >& output,
-               const int value) {
+void serialize(ostream& output, const int value) {
   output.write((char*)(&value), sizeof(value));
 }
 
-void deserialize(basic_istream<char, char_traits<char> >& input,
-                 string& values) {
+void deserialize(istream& input, string& values) {
   int size;
   deserialize(input, size);
   for (int i = 0; i < size; ++i) {
@@ -230,8 +131,7 @@ void deserialize(basic_istream<char, char_traits<char> >& input,
   }
 }
 
-void serialize(basic_ostream<char, char_traits<char> >& output,
-               const string& values) {
+void serialize(ostream& output, const string& values) {
   serialize(output, static_cast<int>(values.size()));
 
   for (unsigned int i = 0; i < values.size(); ++i) {
@@ -239,128 +139,110 @@ void serialize(basic_ostream<char, char_traits<char> >& output,
   }
 }
 
-void deserialize(basic_istream<char, char_traits<char> >& input,
-                 SLabel& label) {
+void deserialize(istream& input, SLabel& label) {
   deserialize(input, reinterpret_cast<int&>(label.mSign));
   deserialize(input, label.mIndex);
 }
 
-void serialize(basic_ostream<char, char_traits<char> >& output,
-               const SLabel& label) {
+void serialize(ostream& output, const SLabel& label) {
   serialize(output, label.mSign);
   serialize(output, label.mIndex);
 }
 
-void deserialize(basic_istream<char, char_traits<char> >& input,
-                 SConstant& constant) {
+void deserialize(istream& input, SConstant& constant) {
   deserialize(input, constant.mLabels);
   deserialize(input, reinterpret_cast<int&>(constant.mValue));
 }
 
-void serialize(basic_ostream<char, char_traits<char> >& output,
-               const SConstant& constant) {
+void serialize(ostream& output, const SConstant& constant) {
   serialize(output, constant.mLabels);
   serialize(output, static_cast<int>(constant.mValue));
 }
 
-void deserialize(basic_istream<char, char_traits<char> >& input,
-                 SMemory& operandMemory) {
+void deserialize(istream& input, SMemory& operandMemory) {
   deserialize(input, operandMemory.mRegisters);
   deserialize(input, operandMemory.mScale);
   deserialize(input, reinterpret_cast<int&>(operandMemory.mSegment));
   deserialize(input, operandMemory.mConstant);
 }
-void serialize(basic_ostream<char, char_traits<char> >& output,
-               const SMemory& operandMemory) {
+void serialize(ostream& output, const SMemory& operandMemory) {
   serialize(output, operandMemory.mRegisters);
   serialize(output, operandMemory.mScale);
   serialize(output, operandMemory.mSegment);
   serialize(output, operandMemory.mConstant);
 }
-void deserialize(basic_istream<char, char_traits<char> >& input,
-                 SOperand& operand) {
+void deserialize(istream& input, SOperand& operand) {
   deserialize(input, reinterpret_cast<int&>(operand.mType));
   deserialize(input, operand.mMemory);
   deserialize(input, reinterpret_cast<int&>(operand.mRegister));
   deserialize(input, operand.mConstant);
 }
-void serialize(basic_ostream<char, char_traits<char> >& output,
-               const SOperand& operand) {
+void serialize(ostream& output, const SOperand& operand) {
   serialize(output, operand.mType);
   serialize(output, operand.mMemory);
   serialize(output, operand.mRegister);
   serialize(output, operand.mConstant);
 }
 
-void deserialize(basic_istream<char, char_traits<char> >& input,
-                 SInstruction& instruction) {
+void deserialize(istream& input, SInstruction& instruction) {
   deserialize(input, reinterpret_cast<int&>(instruction.mPrefix));
   deserialize(input, reinterpret_cast<int&>(instruction.mType));
   deserialize(input, instruction.mOperands);
   deserialize(input, instruction.mTrash);
 }
 
-void serialize(basic_ostream<char, char_traits<char> >& output,
-               const SInstruction& instruction) {
+void serialize(ostream& output, const SInstruction& instruction) {
   serialize(output, instruction.mPrefix);
   serialize(output, instruction.mType);
   serialize(output, instruction.mOperands);
   serialize(output, instruction.mTrash);
 }
 
-void deserialize(basic_istream<char, char_traits<char> >& input,
-                 SSection& section) {
+void deserialize(istream& input, SSection& section) {
   deserialize(input, section.mName);
   deserialize(input, section.mAttributes);
 }
 
-void serialize(basic_ostream<char, char_traits<char> >& output,
-               const SSection& section) {
+void serialize(ostream& output, const SSection& section) {
   serialize(output, section.mName);
   serialize(output, section.mAttributes);
 }
 
-void deserialize(basic_istream<char, char_traits<char> >& input,
-                 SImport& import) {
+void deserialize(istream& input, SImport& import) {
   deserialize(input, import.mDllName);
   deserialize(input, import.mFunctionName);
 }
 
-void serialize(basic_ostream<char, char_traits<char> >& output,
-               const SImport& import) {
+void serialize(ostream& output, const SImport& import) {
   serialize(output, import.mDllName);
   serialize(output, import.mFunctionName);
 }
 
-void deserialize(basic_istream<char, char_traits<char> >& input,
-                 SDirective& directive) {
+void deserialize(istream& input, SDirective& directive) {
   deserialize(input, directive.mName);
   deserialize(input, directive.mDirectorySize);
 }
 
-void serialize(basic_ostream<char, char_traits<char> >& output,
-               const SDirective& directive) {
+void serialize(ostream& output, const SDirective& directive) {
   serialize(output, directive.mName);
   serialize(output, directive.mDirectorySize);
 }
 
-void deserialize(basic_istream<char, char_traits<char> >& input, SData& data) {
+void deserialize(istream& input, SData& data) {
   deserialize(input, data.mName);
   deserialize(input, data.mSizeData);
   deserialize(input, data.mConstants);
   deserialize(input, data.mCount);
 }
 
-void serialize(basic_ostream<char, char_traits<char> >& output,
-               const SData& data) {
+void serialize(ostream& output, const SData& data) {
   serialize(output, data.mName);
   serialize(output, data.mSizeData);
   serialize(output, data.mConstants);
   serialize(output, data.mCount);
 }
 
-void deserialize(basic_istream<char, char_traits<char> >& input,
-                 SCommand& command) {
+void deserialize(istream& input, SCommand& command) {
   deserialize(input, reinterpret_cast<int&>(command.mType));
   deserialize(input, reinterpret_cast<int&>(command.mRVA));
   deserialize(input, reinterpret_cast<int&>(command.mRAW));
@@ -373,8 +255,7 @@ void deserialize(basic_istream<char, char_traits<char> >& input,
   deserialize(input, command.mSection);
 }
 
-void serialize(basic_ostream<char, char_traits<char> >& output,
-               const SCommand& command) {
+void serialize(ostream& output, const SCommand& command) {
   serialize(output, command.mType);
   serialize(output, static_cast<int>(command.mRVA));
   serialize(output, static_cast<int>(command.mRAW));

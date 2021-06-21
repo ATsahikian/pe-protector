@@ -11,9 +11,9 @@ BOOST_AUTO_TEST_SUITE(DataTest);
 
 BOOST_AUTO_TEST_CASE(testGetDataSize1) {
   std::vector<SLabel> labels;
-  std::vector<SConstant> constants = {SConstant(labels, 10)};
+  std::vector<SConstant> constants = {SConstant{labels, 10}};
 
-  SData data("", 1, constants, 2);
+  SData data{"", 1, constants, 2};
 
   const int size = getDataSize(data);
 
@@ -22,9 +22,9 @@ BOOST_AUTO_TEST_CASE(testGetDataSize1) {
 
 BOOST_AUTO_TEST_CASE(testGetDataSize2) {
   std::vector<SLabel> labels;
-  std::vector<SConstant> constants = {SConstant(labels, 10)};
+  std::vector<SConstant> constants = {SConstant{labels, 10}};
 
-  SData data("", 4, constants, 2);
+  SData data{"", 4, constants, 2};
 
   const int size = getDataSize(data);
 
@@ -37,12 +37,12 @@ BOOST_AUTO_TEST_CASE(testPutData1) {
   expectedResult.write(characters, sizeof(characters));
 
   std::vector<SLabel> labels;
-  std::vector<SConstant> constants = {SConstant(labels, 33)};
-  SData data("", 1, constants, 1);
+  std::vector<SConstant> constants = {SConstant{labels, 33}};
+  SData data{"", 1, constants, 1};
 
   std::stringstream result;
 
-  putData(result, data, std::vector<SCommand>());
+  putData(result, data, std::vector<SCommand>{});
 
   BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
 }
@@ -53,12 +53,12 @@ BOOST_AUTO_TEST_CASE(testPutData2) {
   expectedResult.write(characters, sizeof(characters));
 
   std::vector<SLabel> labels;
-  std::vector<SConstant> constants = {SConstant(labels, 33)};
-  SData data("", 1, constants, 3);
+  std::vector<SConstant> constants = {SConstant{labels, 33}};
+  SData data{"", 1, constants, 3};
 
   std::stringstream result;
 
-  putData(result, data, std::vector<SCommand>());
+  putData(result, data, std::vector<SCommand>{});
 
   BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
 }
@@ -70,12 +70,12 @@ BOOST_AUTO_TEST_CASE(testPutData3) {
 
   std::vector<SLabel> labels;
   std::vector<SConstant> constants = {
-      SConstant(labels, 33), SConstant(labels, 34), SConstant(labels, 35)};
-  SData data("", 1, constants, 1);
+      SConstant{labels, 33}, SConstant{labels, 34}, SConstant{labels, 35}};
+  SData data{"", 1, constants, 1};
 
   std::stringstream result;
 
-  putData(result, data, std::vector<SCommand>());
+  putData(result, data, std::vector<SCommand>{});
 
   BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
 }
@@ -87,12 +87,12 @@ BOOST_AUTO_TEST_CASE(testPutData4) {
 
   std::vector<SLabel> labels;
   std::vector<SConstant> constants = {
-      SConstant(labels, 33), SConstant(labels, 34), SConstant(labels, 35)};
-  SData data("", 4, constants, 1);
+      SConstant{labels, 33}, SConstant{labels, 34}, SConstant{labels, 35}};
+  SData data{"", 4, constants, 1};
 
   std::stringstream result;
 
-  putData(result, data, std::vector<SCommand>());
+  putData(result, data, std::vector<SCommand>{});
 
   BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
 }

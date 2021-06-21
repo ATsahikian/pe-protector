@@ -1,5 +1,4 @@
-#ifndef CLEXICAL_ANALIZER_H
-#define CLEXICAL_ANALIZER_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -98,8 +97,5 @@ bool isMatch(const std::vector<SToken>& tokens,
  * @param[in] input source code
  * @return List of tokens
  */
-std::vector<std::vector<SToken> > parse(
-    std::basic_istream<char, std::char_traits<char> >& input);
+std::vector<std::vector<SToken> > parse(std::istream& input);
 }  // namespace NPeProtector
-
-#endif

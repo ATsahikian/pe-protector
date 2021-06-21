@@ -9,8 +9,8 @@ using namespace NPeProtector;
 BOOST_AUTO_TEST_SUITE(InstructionTest);
 
 BOOST_AUTO_TEST_CASE(testGetInstructionSizeNOP) {
-  SInstruction instruction(NPrefix::NON, NInstruction::NOP,
-                           std::vector<SOperand>());
+  SInstruction instruction{NPrefix::NON, NInstruction::NOP,
+                           std::vector<SOperand>{}};
 
   const int size = getInstructionSize(instruction);
 
@@ -26,8 +26,8 @@ BOOST_AUTO_TEST_CASE(testGetInstructionSizeADD_REG8_IMM8) {
   operand2.mType = NOperand::CONSTANT;
   operand2.mConstant.mValue = 0x88;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::ADD,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::NON, NInstruction::ADD, {operand1, operand2}};
 
   const int size = getInstructionSize(instruction);
 
@@ -37,14 +37,14 @@ BOOST_AUTO_TEST_CASE(testGetInstructionSizeADD_REG8_IMM8) {
 BOOST_AUTO_TEST_CASE(testGetInstructionSizeADD_MEM8_IMM81) {
   SOperand operand1;
   operand1.mType = NOperand::MEM8;
-  operand1.mMemory = SMemory({NRegister::EDX}, 0, NSegment::NON, SConstant());
+  operand1.mMemory = SMemory{{NRegister::EDX}, 0, NSegment::NON, SConstant{}};
 
   SOperand operand2;
   operand2.mType = NOperand::CONSTANT;
   operand2.mConstant.mValue = 0x88;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::ADD,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::NON, NInstruction::ADD, {operand1, operand2}};
 
   const int size = getInstructionSize(instruction);
 
@@ -54,15 +54,17 @@ BOOST_AUTO_TEST_CASE(testGetInstructionSizeADD_MEM8_IMM81) {
 BOOST_AUTO_TEST_CASE(testGetInstructionSizeADD_MEM8_IMM82) {
   SOperand operand1;
   operand1.mType = NOperand::MEM8;
-  operand1.mMemory = SMemory({NRegister::EBP}, 0, NSegment::NON,
-                             SConstant(std::vector<SLabel>(), 0xFFFF));
+  operand1.mMemory = SMemory{{NRegister::EBP},
+                             0,
+                             NSegment::NON,
+                             SConstant{std::vector<SLabel>{}, 0xFFFF}};
 
   SOperand operand2;
   operand2.mType = NOperand::CONSTANT;
   operand2.mConstant.mValue = 0x88;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::ADD,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::NON, NInstruction::ADD, {operand1, operand2}};
 
   const int size = getInstructionSize(instruction);
 
@@ -72,15 +74,17 @@ BOOST_AUTO_TEST_CASE(testGetInstructionSizeADD_MEM8_IMM82) {
 BOOST_AUTO_TEST_CASE(testGetInstructionSizeADD_MEM8_IMM83) {
   SOperand operand1;
   operand1.mType = NOperand::MEM8;
-  operand1.mMemory = SMemory({NRegister::EBP, NRegister::EAX}, 0, NSegment::NON,
-                             SConstant(std::vector<SLabel>(), 0xFFFF));
+  operand1.mMemory = SMemory{{NRegister::EBP, NRegister::EAX},
+                             0,
+                             NSegment::NON,
+                             SConstant{std::vector<SLabel>{}, 0xFFFF}};
 
   SOperand operand2;
   operand2.mType = NOperand::CONSTANT;
   operand2.mConstant.mValue = 0x88;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::ADD,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::NON, NInstruction::ADD, {operand1, operand2}};
 
   const int size = getInstructionSize(instruction);
 
@@ -90,15 +94,17 @@ BOOST_AUTO_TEST_CASE(testGetInstructionSizeADD_MEM8_IMM83) {
 BOOST_AUTO_TEST_CASE(testGetInstructionSizeADD_MEM8_IMM84) {
   SOperand operand1;
   operand1.mType = NOperand::MEM8;
-  operand1.mMemory = SMemory({NRegister::EBP, NRegister::EAX}, 2, NSegment::FS,
-                             SConstant(std::vector<SLabel>(), 0xFFFF));
+  operand1.mMemory = SMemory{{NRegister::EBP, NRegister::EAX},
+                             2,
+                             NSegment::FS,
+                             SConstant{std::vector<SLabel>{}, 0xFFFF}};
 
   SOperand operand2;
   operand2.mType = NOperand::CONSTANT;
   operand2.mConstant.mValue = 0x88;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::ADD,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::NON, NInstruction::ADD, {operand1, operand2}};
 
   const int size = getInstructionSize(instruction);
 
@@ -108,15 +114,17 @@ BOOST_AUTO_TEST_CASE(testGetInstructionSizeADD_MEM8_IMM84) {
 BOOST_AUTO_TEST_CASE(testGetInstructionSizeADD_MEM8_IMM85) {
   SOperand operand1;
   operand1.mType = NOperand::MEM8;
-  operand1.mMemory = SMemory({NRegister::EBP, NRegister::EAX}, 2, NSegment::FS,
-                             SConstant(std::vector<SLabel>(), 0xFFFF));
+  operand1.mMemory = SMemory{{NRegister::EBP, NRegister::EAX},
+                             2,
+                             NSegment::FS,
+                             SConstant{std::vector<SLabel>{}, 0xFFFF}};
 
   SOperand operand2;
   operand2.mType = NOperand::CONSTANT;
   operand2.mConstant.mValue = 0x88;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::ADD,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::NON, NInstruction::ADD, {operand1, operand2}};
 
   const int size = getInstructionSize(instruction);
 
@@ -132,8 +140,8 @@ BOOST_AUTO_TEST_CASE(testGetInstructionSizeADD_REG32_REG32) {
   operand2.mType = NOperand::REG32;
   operand2.mRegister = NRegister::EBP;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::ADD,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::NON, NInstruction::ADD, {operand1, operand2}};
 
   const int size = getInstructionSize(instruction);
 
@@ -149,8 +157,8 @@ BOOST_AUTO_TEST_CASE(testGetInstructionSizePrefix) {
   operand2.mType = NOperand::REG32;
   operand2.mRegister = NRegister::EBP;
 
-  SInstruction instruction(NPrefix::REPZ, NInstruction::ADD,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::REPZ, NInstruction::ADD, {operand1, operand2}};
 
   const int size = getInstructionSize(instruction);
 
@@ -164,10 +172,10 @@ BOOST_AUTO_TEST_CASE(testPutInstructionNOP) {
 
   std::stringstream result;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::NOP,
-                           std::vector<SOperand>());
+  SInstruction instruction{NPrefix::NON, NInstruction::NOP,
+                           std::vector<SOperand>{}};
 
-  putInstruction(result, instruction, std::vector<SCommand>(), 0);
+  putInstruction(result, instruction, std::vector<SCommand>{}, 0);
 
   BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
 }
@@ -187,10 +195,10 @@ BOOST_AUTO_TEST_CASE(testPutInstructionADD_REG8_IMM8) {
   operand2.mType = NOperand::CONSTANT;
   operand2.mConstant.mValue = 0x88;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::ADD,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::NON, NInstruction::ADD, {operand1, operand2}};
 
-  putInstruction(result, instruction, std::vector<SCommand>(), 0);
+  putInstruction(result, instruction, std::vector<SCommand>{}, 0);
 
   BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
 }
@@ -204,16 +212,16 @@ BOOST_AUTO_TEST_CASE(testPutInstructionADD_MEM8_IMM81) {
 
   SOperand operand1;
   operand1.mType = NOperand::MEM8;
-  operand1.mMemory = SMemory({NRegister::EDX}, 0, NSegment::NON, SConstant());
+  operand1.mMemory = SMemory{{NRegister::EDX}, 0, NSegment::NON, SConstant{}};
 
   SOperand operand2;
   operand2.mType = NOperand::CONSTANT;
   operand2.mConstant.mValue = 0x88;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::ADD,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::NON, NInstruction::ADD, {operand1, operand2}};
 
-  putInstruction(result, instruction, std::vector<SCommand>(), 0);
+  putInstruction(result, instruction, std::vector<SCommand>{}, 0);
 
   BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
 }
@@ -227,17 +235,19 @@ BOOST_AUTO_TEST_CASE(testPutInstructionADD_MEM8_IMM82) {
 
   SOperand operand1;
   operand1.mType = NOperand::MEM8;
-  operand1.mMemory = SMemory({NRegister::EBP}, 0, NSegment::NON,
-                             SConstant(std::vector<SLabel>(), 0xFFFF));
+  operand1.mMemory = SMemory{{NRegister::EBP},
+                             0,
+                             NSegment::NON,
+                             SConstant{std::vector<SLabel>{}, 0xFFFF}};
 
   SOperand operand2;
   operand2.mType = NOperand::CONSTANT;
   operand2.mConstant.mValue = 0x88;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::ADD,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::NON, NInstruction::ADD, {operand1, operand2}};
 
-  putInstruction(result, instruction, std::vector<SCommand>(), 0);
+  putInstruction(result, instruction, std::vector<SCommand>{}, 0);
 
   BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
 }
@@ -251,17 +261,19 @@ BOOST_AUTO_TEST_CASE(testPutInstructionADD_MEM8_IMM83) {
 
   SOperand operand1;
   operand1.mType = NOperand::MEM8;
-  operand1.mMemory = SMemory({NRegister::EBP, NRegister::EAX}, 0, NSegment::NON,
-                             SConstant(std::vector<SLabel>(), 0xFFFF));
+  operand1.mMemory = SMemory{{NRegister::EBP, NRegister::EAX},
+                             0,
+                             NSegment::NON,
+                             SConstant{std::vector<SLabel>{}, 0xFFFF}};
 
   SOperand operand2;
   operand2.mType = NOperand::CONSTANT;
   operand2.mConstant.mValue = 0x88;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::ADD,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::NON, NInstruction::ADD, {operand1, operand2}};
 
-  putInstruction(result, instruction, std::vector<SCommand>(), 0);
+  putInstruction(result, instruction, std::vector<SCommand>{}, 0);
 
   BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
 }
@@ -276,17 +288,19 @@ BOOST_AUTO_TEST_CASE(testPutInstructionADD_MEM8_IMM84) {
 
   SOperand operand1;
   operand1.mType = NOperand::MEM8;
-  operand1.mMemory = SMemory({NRegister::EBP, NRegister::EAX}, 2, NSegment::FS,
-                             SConstant(std::vector<SLabel>(), 0xFFFF));
+  operand1.mMemory = SMemory{{NRegister::EBP, NRegister::EAX},
+                             2,
+                             NSegment::FS,
+                             SConstant{std::vector<SLabel>{}, 0xFFFF}};
 
   SOperand operand2;
   operand2.mType = NOperand::CONSTANT;
   operand2.mConstant.mValue = 0x88;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::ADD,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::NON, NInstruction::ADD, {operand1, operand2}};
 
-  putInstruction(result, instruction, std::vector<SCommand>(), 0);
+  putInstruction(result, instruction, std::vector<SCommand>{}, 0);
 
   BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
 }
@@ -301,17 +315,19 @@ BOOST_AUTO_TEST_CASE(testPutInstructionADD_MEM8_IMM85) {
 
   SOperand operand1;
   operand1.mType = NOperand::MEM8;
-  operand1.mMemory = SMemory({NRegister::EBP, NRegister::EAX}, 2, NSegment::FS,
-                             SConstant(std::vector<SLabel>(), 0xFFFF));
+  operand1.mMemory = SMemory{{NRegister::EBP, NRegister::EAX},
+                             2,
+                             NSegment::FS,
+                             SConstant{std::vector<SLabel>{}, 0xFFFF}};
 
   SOperand operand2;
   operand2.mType = NOperand::CONSTANT;
   operand2.mConstant.mValue = 0x88;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::ADD,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::NON, NInstruction::ADD, {operand1, operand2}};
 
-  putInstruction(result, instruction, std::vector<SCommand>(), 0);
+  putInstruction(result, instruction, std::vector<SCommand>{}, 0);
 
   BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
 }
@@ -331,10 +347,10 @@ BOOST_AUTO_TEST_CASE(testPutInstructionADD_REG32_REG32) {
   operand2.mType = NOperand::REG32;
   operand2.mRegister = NRegister::EBP;
 
-  SInstruction instruction(NPrefix::NON, NInstruction::ADD,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::NON, NInstruction::ADD, {operand1, operand2}};
 
-  putInstruction(result, instruction, std::vector<SCommand>(), 0);
+  putInstruction(result, instruction, std::vector<SCommand>{}, 0);
 
   BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
 }
@@ -354,10 +370,10 @@ BOOST_AUTO_TEST_CASE(testPutInstructionPrefix) {
   operand2.mType = NOperand::REG32;
   operand2.mRegister = NRegister::EBP;
 
-  SInstruction instruction(NPrefix::REPZ, NInstruction::ADD,
-                           {operand1, operand2});
+  SInstruction instruction{
+      NPrefix::REPZ, NInstruction::ADD, {operand1, operand2}};
 
-  putInstruction(result, instruction, std::vector<SCommand>(), 0);
+  putInstruction(result, instruction, std::vector<SCommand>{}, 0);
 
   BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
 }
