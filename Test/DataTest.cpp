@@ -1,108 +1,99 @@
-#include "CppUnitTest.h"
+#define BOOST_TEST_MODULE data test
+#include <boost/test/included/unit_test.hpp>
+
 #include "../Library/SCommand.h"
 #include "../PeProtector/Data.h"
 #include "iostream"
 
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace NPeProtector;
 
-namespace Test
-{
-	TEST_CLASS(DataTest)
-	{
-	public:
-		
-		TEST_METHOD(testGetDataSize1)
-		{
-         std::vector<SLabel> labels;
-         std::vector<SConstant> constants = { SConstant(labels, 10) };
+BOOST_AUTO_TEST_SUITE(DataTest);
 
-         SData data("", 1, constants, 2);
+BOOST_AUTO_TEST_CASE(testGetDataSize1) {
+  std::vector<SLabel> labels;
+  std::vector<SConstant> constants = {SConstant(labels, 10)};
 
-         const int size = getDataSize(data);
+  SData data("", 1, constants, 2);
 
-         Assert::IsTrue(size == 2);
-		}
+  const int size = getDataSize(data);
 
-      TEST_METHOD(testGetDataSize2)
-      {
-         std::vector<SLabel> labels;
-         std::vector<SConstant> constants = { SConstant(labels, 10) };
+  BOOST_TEST(size == 2);
+}  // namespace Test
 
-         SData data("", 4, constants, 2);
+BOOST_AUTO_TEST_CASE(testGetDataSize2) {
+  std::vector<SLabel> labels;
+  std::vector<SConstant> constants = {SConstant(labels, 10)};
 
-         const int size = getDataSize(data);
+  SData data("", 4, constants, 2);
 
-         Assert::IsTrue(size == 8);
-      }
+  const int size = getDataSize(data);
 
-      TEST_METHOD(testPutData1)
-      {
-         std::stringstream expectedResult;
-         char characters[] = { 33 };
-         expectedResult.write(characters, sizeof(characters));
-
-         std::vector<SLabel> labels;
-         std::vector<SConstant> constants = { SConstant(labels, 33) };
-         SData data("", 1, constants, 1);
-
-         std::stringstream result;
-
-         putData(result, data, std::vector<SCommand>());
-
-         Assert::IsTrue(result.rdbuf()->str() == expectedResult.rdbuf()->str());
-      }
-
-      TEST_METHOD(testPutData2)
-      {
-         std::stringstream expectedResult;
-         char characters[] = {33, 33, 33};
-         expectedResult.write(characters, sizeof(characters));
-
-         std::vector<SLabel> labels;
-         std::vector<SConstant> constants = { SConstant(labels, 33) };
-         SData data("", 1, constants, 3);
-
-         std::stringstream result;
-
-         putData(result, data, std::vector<SCommand>());
-
-         Assert::IsTrue(result.rdbuf()->str() == expectedResult.rdbuf()->str());
-      }
-
-      TEST_METHOD(testPutData3)
-      {
-         std::stringstream expectedResult;
-         char characters[] = { 33, 34, 35 };
-         expectedResult.write(characters, sizeof(characters));
-
-         std::vector<SLabel> labels;
-         std::vector<SConstant> constants = { SConstant(labels, 33), SConstant(labels, 34), SConstant(labels, 35) };
-         SData data("", 1, constants, 1);
-
-         std::stringstream result;
-
-         putData(result, data, std::vector<SCommand>());
-
-         Assert::IsTrue(result.rdbuf()->str() == expectedResult.rdbuf()->str());
-      }
-
-      TEST_METHOD(testPutData4)
-      {
-         std::stringstream expectedResult;
-         DWORD characters[] = { 33, 34, 35 };
-         expectedResult.write((char*)characters, sizeof(characters));
-
-         std::vector<SLabel> labels;
-         std::vector<SConstant> constants = { SConstant(labels, 33), SConstant(labels, 34), SConstant(labels, 35) };
-         SData data("", 4, constants, 1);
-
-         std::stringstream result;
-
-         putData(result, data, std::vector<SCommand>());
-
-         Assert::IsTrue(result.rdbuf()->str() == expectedResult.rdbuf()->str());
-      }
-
-   };
+  BOOST_TEST(size == 8);
 }
+
+BOOST_AUTO_TEST_CASE(testPutData1) {
+  std::stringstream expectedResult;
+  char characters[] = {33};
+  expectedResult.write(characters, sizeof(characters));
+
+  std::vector<SLabel> labels;
+  std::vector<SConstant> constants = {SConstant(labels, 33)};
+  SData data("", 1, constants, 1);
+
+  std::stringstream result;
+
+  putData(result, data, std::vector<SCommand>());
+
+  BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
+}
+
+BOOST_AUTO_TEST_CASE(testPutData2) {
+  std::stringstream expectedResult;
+  char characters[] = {33, 33, 33};
+  expectedResult.write(characters, sizeof(characters));
+
+  std::vector<SLabel> labels;
+  std::vector<SConstant> constants = {SConstant(labels, 33)};
+  SData data("", 1, constants, 3);
+
+  std::stringstream result;
+
+  putData(result, data, std::vector<SCommand>());
+
+  BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
+}
+
+BOOST_AUTO_TEST_CASE(testPutData3) {
+  std::stringstream expectedResult;
+  char characters[] = {33, 34, 35};
+  expectedResult.write(characters, sizeof(characters));
+
+  std::vector<SLabel> labels;
+  std::vector<SConstant> constants = {
+      SConstant(labels, 33), SConstant(labels, 34), SConstant(labels, 35)};
+  SData data("", 1, constants, 1);
+
+  std::stringstream result;
+
+  putData(result, data, std::vector<SCommand>());
+
+  BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
+}
+
+BOOST_AUTO_TEST_CASE(testPutData4) {
+  std::stringstream expectedResult;
+  DWORD characters[] = {33, 34, 35};
+  expectedResult.write((char*)characters, sizeof(characters));
+
+  std::vector<SLabel> labels;
+  std::vector<SConstant> constants = {
+      SConstant(labels, 33), SConstant(labels, 34), SConstant(labels, 35)};
+  SData data("", 4, constants, 1);
+
+  std::stringstream result;
+
+  putData(result, data, std::vector<SCommand>());
+
+  BOOST_TEST(result.rdbuf()->str() == expectedResult.rdbuf()->str());
+}
+BOOST_AUTO_TEST_SUITE_END();

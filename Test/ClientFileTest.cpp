@@ -1,15 +1,10 @@
-#include "CppUnitTest.h"
+#define BOOST_TEST_MODULE client file test
+#include <boost/test/included/unit_test.hpp>
 
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+BOOST_AUTO_TEST_SUITE(ClientFileTest);
 
-namespace Test
-{
-	TEST_CLASS(ClientFileTest)
-	{
-	public:
-      TEST_METHOD(testGetPeFileInfo)
-		{
-			// TODO: Your test code here
-		}
-	};
+BOOST_AUTO_TEST_CASE(testGetPeFileInfo) {
+  BOOST_TEST(true /* test assertion */);
 }
+
+BOOST_AUTO_TEST_SUITE_END();

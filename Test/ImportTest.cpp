@@ -1,82 +1,75 @@
-#include "CppUnitTest.h"
+#define BOOST_TEST_MODULE import test
+#include <boost/test/included/unit_test.hpp>
+
 #include "../Library/SCommand.h"
 #include "../PeProtector/Import.h"
 
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace NPeProtector;
 
-namespace Test
-{
-	TEST_CLASS(ImportTest)
-	{
-	public:
-		
-      TEST_METHOD(testResolveImport1)
-      {
-         SCommand command1;
-         command1.mType = NCommand::IMPORT;
-         command1.mImport.mDllName = "dll1";
-         command1.mImport.mFunctionName = "func1";
+BOOST_AUTO_TEST_SUITE(ImportTest);
 
-         std::vector<SCommand> commands = { command1, };
+BOOST_AUTO_TEST_CASE(testResolveImport1) {
+  SCommand command1;
+  command1.mType = NCommand::IMPORT;
+  command1.mImport.mDllName = "dll1";
+  command1.mImport.mFunctionName = "func1";
 
-         resolveImport(commands, 0);
+  std::vector<SCommand> commands = {
+      command1,
+  };
 
-         Assert::IsTrue(commands[0].mRVA == 48);
-      }
+  resolveImport(commands, 0);
 
-      TEST_METHOD(testResolveImport2)
-		{
-         SCommand command1;
-         command1.mType = NCommand::IMPORT;
-         command1.mImport.mDllName = "dll1";
-         command1.mImport.mFunctionName = "func1";
-         
-         SCommand command2;
-         command2.mType = NCommand::IMPORT;
-         command2.mImport.mDllName = "dll2";
-         command2.mImport.mFunctionName = "func2";
-
-         std::vector<SCommand> commands = {command1, command2};
-
-         resolveImport(commands, 0);
-
-         Assert::IsTrue(commands[0].mRVA == 76);
-         Assert::IsTrue(commands[1].mRVA == 84);
-		}
-
-      TEST_METHOD(testGetImportSize1)
-      {
-         SCommand command1;
-         command1.mType = NCommand::IMPORT;
-         command1.mImport.mDllName = "dll1";
-         command1.mImport.mFunctionName = "func1";
-
-         std::vector<SCommand> commands = { command1};
-
-         const int size = getImportSize(commands);
-
-         Assert::IsTrue(size == 69);
-      }
-
-      TEST_METHOD(testGetImportSize2)
-      {
-         SCommand command1;
-         command1.mType = NCommand::IMPORT;
-         command1.mImport.mDllName = "dll1";
-         command1.mImport.mFunctionName = "func1";
-
-         SCommand command2;
-         command2.mType = NCommand::IMPORT;
-         command2.mImport.mDllName = "dll2";
-         command2.mImport.mFunctionName = "func2";
-
-         std::vector<SCommand> commands = { command1, command2 };
-
-         const int size = getImportSize(commands);
-
-         Assert::IsTrue(size == 118);
-      }
-   };
+  BOOST_TEST(commands[0].mRVA == 48);
 }
 
+BOOST_AUTO_TEST_CASE(testResolveImport2) {
+  SCommand command1;
+  command1.mType = NCommand::IMPORT;
+  command1.mImport.mDllName = "dll1";
+  command1.mImport.mFunctionName = "func1";
+
+  SCommand command2;
+  command2.mType = NCommand::IMPORT;
+  command2.mImport.mDllName = "dll2";
+  command2.mImport.mFunctionName = "func2";
+
+  std::vector<SCommand> commands = {command1, command2};
+
+  resolveImport(commands, 0);
+
+  BOOST_TEST(commands[0].mRVA == 76);
+  BOOST_TEST(commands[1].mRVA == 84);
+}
+
+BOOST_AUTO_TEST_CASE(testGetImportSize1) {
+  SCommand command1;
+  command1.mType = NCommand::IMPORT;
+  command1.mImport.mDllName = "dll1";
+  command1.mImport.mFunctionName = "func1";
+
+  std::vector<SCommand> commands = {command1};
+
+  const int size = getImportSize(commands);
+
+  BOOST_TEST(size == 69);
+}
+
+BOOST_AUTO_TEST_CASE(testGetImportSize2) {
+  SCommand command1;
+  command1.mType = NCommand::IMPORT;
+  command1.mImport.mDllName = "dll1";
+  command1.mImport.mFunctionName = "func1";
+
+  SCommand command2;
+  command2.mType = NCommand::IMPORT;
+  command2.mImport.mDllName = "dll2";
+  command2.mImport.mFunctionName = "func2";
+
+  std::vector<SCommand> commands = {command1, command2};
+
+  const int size = getImportSize(commands);
+
+  BOOST_TEST(size == 118);
+}
+BOOST_AUTO_TEST_SUITE_END();

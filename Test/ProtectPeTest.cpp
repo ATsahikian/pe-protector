@@ -1,19 +1,12 @@
-#include "CppUnitTest.h"
+#define BOOST_TEST_MODULE protect pe test
+#include <boost/test/included/unit_test.hpp>
+
 #include "../PeProtector/PeHeader.h"
 
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace NPeProtector;
 
-namespace Test
-{
-	TEST_CLASS(ProtectPeTest)
-	{
-	public:
-		
-      TEST_METHOD(testProtectPe)
-		{
-			// TODO: Your test code here
-		}
-
-	};
+BOOST_AUTO_TEST_SUITE(ProtectPeTest);
+BOOST_AUTO_TEST_CASE(testProtectPe) {
+  // TODO: Your test code here
 }
+BOOST_AUTO_TEST_SUITE_END();

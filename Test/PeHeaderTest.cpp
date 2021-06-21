@@ -1,18 +1,12 @@
-#include "CppUnitTest.h"
+#define BOOST_TEST_MODULE pe header test
+#include <boost/test/included/unit_test.hpp>
+
 #include "../PeProtector/PeHeader.h"
 
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace NPeProtector;
 
-namespace Test
-{
-	TEST_CLASS(PeHeaderTest)
-	{
-	public:
-		
-      TEST_METHOD(testGetHeaderSize)
-		{
-         Assert::IsTrue(0x400 == getHeaderSize());
-		}
-	};
+BOOST_AUTO_TEST_SUITE(PeHeaderTest);
+BOOST_AUTO_TEST_CASE(testGetHeaderSize) {
+  BOOST_TEST(0x400 == getHeaderSize());
 }
+BOOST_AUTO_TEST_SUITE_END();
