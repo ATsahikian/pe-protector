@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE instruction test
 #include <boost/test/included/unit_test.hpp>
 
-#include "../pe-protector/Instruction.h"
+#include "pe-protector/Instruction.h"
 
 using namespace NPeProtector;
 

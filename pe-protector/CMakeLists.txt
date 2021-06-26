@@ -31,6 +31,11 @@ target_link_libraries(
   Dbghelp
   "${CMAKE_SOURCE_DIR}/aplib/aplib.lib")
 
+target_include_directories(
+  libpe-protector
+ PUBLIC
+  "${CMAKE_SOURCE_DIR}")
+
 target_link_options(
   libpe-protector
  PUBLIC

@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE lexical analizer test
 #include <boost/test/included/unit_test.hpp>
 
-#include "../compiler/CLexicalAnalizer.h"
+#include "compiler/CLexicalAnalizer.h"
 
 using namespace NPeProtector;
 

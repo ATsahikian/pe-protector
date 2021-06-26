@@ -1,8 +1,9 @@
 #pragma once
 
+#include "Types.h"
+
 #include <istream>
 #include <vector>
-#include "Types.h"
 
 namespace NPeProtector {
 /**
@@ -40,7 +41,7 @@ struct SConstant {
 struct SMemory {
   std::vector<NRegister::EType> mRegisters{};
 
-  int mScale{};  // 1->>2; 2->>4; 3-->>>8; scale! //TODO int!!!
+  int mScale{};  // 1->>2; 2->>4; 3-->>>8; scale! //TODO int
 
   NSegment::EType mSegment{NSegment::NON};
 

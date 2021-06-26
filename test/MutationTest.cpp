@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE mutation test
 #include <boost/test/included/unit_test.hpp>
 
-#include "../pe-protector/Mutation.h"
+#include "pe-protector/Mutation.h"
 
 using namespace NPeProtector;
 

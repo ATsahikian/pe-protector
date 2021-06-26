@@ -1,16 +1,15 @@
 #include "InstructionModRM.h"
-#include "../common/SCommand.h"
-#include "PeHeader.h"
-#include "assert.h"
-#include "exception"
 
-using std::exception;
-using std::ostream;
-using std::vector;
+#include "PeHeader.h"
+
+#include "common/SCommand.h"
+
+#include <assert.h>
+#include <exception>
 
 namespace NPeProtector {
 namespace {
-int getLabel(const SLabel& label, const vector<SCommand>& commands) {
+int getLabel(const SLabel& label, const std::vector<SCommand>& commands) {
   int va = 0;
   if (commands[label.mIndex].mType == NCommand::EXTERN) {
     assert(commands[label.mIndex].mData.mConstants.size() == 1);
@@ -53,7 +52,7 @@ NRegister::EType getRegisterFromCode(const int code) {
     case 0x07:
       return NRegister::EDI;
   }
-  throw exception("Failed to get register from code field");
+  throw std::exception("Failed to get register from code field");
 }
 
 char getModRM_Mod(const SOperand& rm) {
@@ -92,7 +91,7 @@ char getModRM_Mod(const SOperand& rm) {
       }
     }
   }
-  throw exception("Failed to get modrm mod field");
+  throw std::exception("Failed to get modrm mod field");
 }
 
 char getModRM_RM(const SOperand& rm) {
@@ -156,7 +155,7 @@ char getModRM_RM(const SOperand& rm) {
         return 0x04;  // point to sib byte
       }
   }
-  throw exception("Failed to get modrm rm field");
+  throw std::exception("Failed to get modrm rm field");
 }
 
 char getModRM_Reg(const NRegister::EType reg) {
@@ -174,7 +173,7 @@ char getSIB_SS(const int scale) {
     case 8:
       return 0x03;
   }
-  throw exception("Failed to get sib ss field");
+  throw std::exception("Failed to get sib ss field");
 }
 
 char getSIB_Index(const SMemory& memory) {
@@ -183,7 +182,7 @@ char getSIB_Index(const SMemory& memory) {
   } else if (memory.mRegisters.size() == 2) {
     return getRegisterCode(memory.mRegisters[0]);
   }
-  throw exception("Failed to get SIB index");
+  throw std::exception("Failed to get SIB index");
 }
 
 char getSIB_Reg(const SMemory& memory) {
@@ -192,7 +191,7 @@ char getSIB_Reg(const SMemory& memory) {
   } else if (memory.mRegisters.size() == 2) {
     return getRegisterCode(memory.mRegisters[1]);
   }
-  throw exception("Failed to get SIB register");
+  throw std::exception("Failed to get SIB register");
 }
 
 bool isOperandMemory(const NOperand::EType type) {
@@ -210,13 +209,13 @@ SMemory normalizeMemory(const SMemory& memory) {
 
   if (memory.mRegisters.size() > 0 && memory.mRegisters[0] == NRegister::ESP &&
       memory.mScale > 0) {
-    throw exception("Impossible to create [NUMBER * ESP]");
+    throw std::exception("Impossible to create [NUMBER * ESP]");
   } else if (memory.mRegisters.size() == 2 &&
              memory.mRegisters[0] == NRegister::ESP &&
              memory.mRegisters[1] == NRegister::ESP) {
-    throw exception("Impossible to create [ESP + ESP]");
+    throw std::exception("Impossible to create [ESP + ESP]");
   } else if (memory.mRegisters.size() == 1 && memory.mScale > 0) {
-    throw exception("Impossible to create [NUMBER * REG]");
+    throw std::exception("Impossible to create [NUMBER * REG]");
   } else if (memory.mRegisters.size() == 2 &&
              memory.mRegisters[0] == NRegister::ESP && memory.mScale == 0) {
     // swap registers
@@ -275,7 +274,7 @@ int getDisplacementSize(const SConstant& constant, const bool isSigned) {
 }
 
 int getDisplacement(const SConstant& constant,
-                    const vector<SCommand>& commands) {
+                    const std::vector<SCommand>& commands) {
   int result = constant.mValue;
   for (unsigned int i = 0; i < constant.mLabels.size(); ++i) {
     result += getLabel(constant.mLabels[i], commands);
@@ -329,7 +328,7 @@ char getRegisterCode(const NRegister::EType reg) {
     case NRegister::BH:
       return 0x07;
   }
-  throw exception("Failed to get register code field");
+  throw std::exception("Failed to get register code field");
 }
 
 }  // namespace NPeProtector

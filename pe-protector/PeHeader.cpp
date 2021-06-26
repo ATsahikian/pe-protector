@@ -1,17 +1,13 @@
 #include "PeHeader.h"
-//#include <winnt.h>
+
+#include "common/SCommand.h"
+#include "common/Types.h"
+
+#include <assert.h>
+#include <string.h>
 #include <windows.h>
 #include <sstream>
 #include <vector>
-#include "../common/SCommand.h"
-#include "../common/Types.h"
-#include "assert.h"
-#include "string.h"
-
-using std::exception;
-using std::ostream;
-using std::string;
-using std::vector;
 
 namespace NPeProtector {
 namespace {
@@ -100,7 +96,7 @@ IMAGE_NT_HEADERS32 sPeHeader = {
         0x400,         // DWORD   SizeOfHeaders;
         0x0 /*????*/,  // DWORD   CheckSum;
         2,
-        /*GUI TODO replace*/  // WORD    Subsystem; /*����������*/
+        /*GUI TODO replace*/  // WORD    Subsystem;
         0,                    // WORD    DllCharacteristics;
         0x100000,             // DWORD   SizeOfStackReserve;
         0x1000,               // DWORD   SizeOfStackCommit;
@@ -112,7 +108,8 @@ IMAGE_NT_HEADERS32 sPeHeader = {
               // DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
     }};
 
-int findDirective(const vector<SCommand>& commands, const string& name) {
+int findDirective(const std::vector<SCommand>& commands,
+                  const std::string& name) {
   for (unsigned int i = 0; i < commands.size(); ++i) {
     if (commands[i].mType == NCommand::DIRECTIVE &&
         commands[i].mDirective.mName == name) {
@@ -122,7 +119,7 @@ int findDirective(const vector<SCommand>& commands, const string& name) {
   return -1;
 }
 
-int findSection(const vector<SCommand>& commands, const int startIndex) {
+int findSection(const std::vector<SCommand>& commands, const int startIndex) {
   for (unsigned int i = startIndex + 1; i < commands.size(); ++i) {
     if (commands[i].mType == NCommand::SECTION ||
         commands[i].mType == NCommand::END) {
@@ -132,7 +129,7 @@ int findSection(const vector<SCommand>& commands, const int startIndex) {
   return -1;
 }
 
-IMAGE_SECTION_HEADER getSection(const vector<SCommand>& commands,
+IMAGE_SECTION_HEADER getSection(const std::vector<SCommand>& commands,
                                 const int sectionIndex,
                                 const uint32_t sizeOfImage) {
   int a = sizeof(IMAGE_NT_HEADERS32);
@@ -185,9 +182,10 @@ IMAGE_SECTION_HEADER getSection(const vector<SCommand>& commands,
   return result;
 }
 
-vector<IMAGE_SECTION_HEADER> getSections(const vector<SCommand>& commands,
-                                         uint32_t SizeOfImage) {
-  vector<IMAGE_SECTION_HEADER> sections;
+std::vector<IMAGE_SECTION_HEADER> getSections(
+    const std::vector<SCommand>& commands,
+    uint32_t SizeOfImage) {
+  std::vector<IMAGE_SECTION_HEADER> sections;
 
   for (unsigned int i = 0; i < commands.size(); ++i) {
     if (commands[i].mType == NCommand::SECTION) {
@@ -204,14 +202,14 @@ int getHeaderSize() {
   return 0x400;  // TODO
 }
 
-void putHeader(ostream& output,
-               const vector<SCommand>& commands,
+void putHeader(std::ostream& output,
+               const std::vector<SCommand>& commands,
                const SClientFile& clientFile) {
-  const vector<IMAGE_SECTION_HEADER>& sections =
+  const std::vector<IMAGE_SECTION_HEADER>& sections =
       getSections(commands, clientFile.mImageSize);
 
   if (sections.empty()) {
-    throw exception("No sections");
+    throw std::exception("No sections");
   }
 
   sPeHeader.FileHeader.NumberOfSections = sections.size();

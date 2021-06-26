@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE pe header test
 #include <boost/test/included/unit_test.hpp>
 
-#include "../pe-protector/PeHeader.h"
+#include "pe-protector/PeHeader.h"
 
 using namespace NPeProtector;
 

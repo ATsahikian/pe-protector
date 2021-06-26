@@ -1,4 +1,3 @@
-#TODO rename folder to common
 add_library(
   libcommon
   SCommand.h
@@ -6,6 +5,11 @@ add_library(
   Types.h
   Types.cpp
   Opcodes.def)
+
+target_include_directories(
+  libcommon
+ PUBLIC
+  "${CMAKE_SOURCE_DIR}")
 
 target_link_libraries(
   libcommon

@@ -1,5 +1,5 @@
 #include "Opcodes.h"
-//#include "winnt.h"
+
 #include <windows.h>
 
 namespace NPeProtector {
@@ -28,7 +28,7 @@ const SOpcode gOpcodes[] = {
    SOpcode::operand2,                                                     \
    SOpcode::operand3,                                                     \
    SOpcode::flag},
-#include "../common/Opcodes.def"
+#include "common/Opcodes.def"
 #undef OPCODE_NEXT
 #undef OPCODE_FIRST
 };

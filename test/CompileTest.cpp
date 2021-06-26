@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE compile test
 #include <boost/test/included/unit_test.hpp>
 
-#include "../compiler/CCompile.h"
+#include "compiler/CCompile.h"
 
 using namespace NPeProtector;
 

@@ -1,8 +1,10 @@
 #pragma once
 
-#include "../common/SCommand.h"
 #include "ClientFile.h"
-#include "iosfwd"
+
+#include "common/SCommand.h"
+
+#include <iosfwd>
 
 namespace NPeProtector {
 const int gSectionAlignment = 0x1000;

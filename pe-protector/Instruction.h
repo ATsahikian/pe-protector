@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../common/SCommand.h"
-#include "iosfwd"
+#include "common/SCommand.h"
+
+#include <iosfwd>
 
 namespace NPeProtector {
 /**

@@ -1,13 +1,11 @@
 #include "Instruction.h"
-#include <ostream>
+
 #include "InstructionModRM.h"
 #include "Opcodes.h"
 #include "PeHeader.h"
-#include "assert.h"
 
-using std::exception;
-using std::ostream;
-using std::vector;
+#include <assert.h>
+#include <ostream>
 
 namespace NPeProtector {
 namespace {
@@ -24,7 +22,7 @@ int getSegmentSize(const NSegment::EType segment) {
   return 0;
 }
 
-void putSegment(ostream& output, const NSegment::EType segment) {
+void putSegment(std::ostream& output, const NSegment::EType segment) {
   char value = 0;
   switch (segment) {
     case NSegment::CS:
@@ -51,7 +49,7 @@ void putSegment(ostream& output, const NSegment::EType segment) {
   }
 }
 
-void putPrefix(ostream& output, const NPrefix::EType prefix) {
+void putPrefix(std::ostream& output, const NPrefix::EType prefix) {
   unsigned char value = 0;
   switch (prefix) {
     case NPrefix::REPZ:
@@ -119,7 +117,7 @@ bool isMatchOperand(const SOpcode::EOperand opcodeOperand,
     case SOpcode::REL32:
       return operand.mType == NOperand::CONSTANT;
     case SOpcode::NON:
-      throw exception("Failed to get type of operand");
+      throw std::exception("Failed to get type of operand");
   };
   return false;
 }
@@ -151,7 +149,7 @@ bool isMatch(const SOpcode& opcode, const SInstruction& instruction) {
                isMatchOperand(opcode.mOperand3, instruction.mOperands[2]);
       default:
         // error
-        throw exception("TODO");
+        throw std::exception("TODO");
     }
   }
   return false;
@@ -167,7 +165,7 @@ const SOpcode& getOpcode(const SInstruction& instruction) {
       return gOpcodes[i];
     }
   }
-  throw exception("Failed to find proper instruction");
+  throw std::exception("Failed to find proper instruction");
 }
 
 bool isOperandImm(const SOpcode::EOperand opcodeOperand) {
@@ -195,7 +193,7 @@ int getOperandSize(const SOpcode::EOperand opcodeOperand) {
   return 0;
 }
 
-void putConstant(ostream& output, const int value, const int size) {
+void putConstant(std::ostream& output, const int value, const int size) {
   switch (size) {
     case 0: {
       break;
@@ -215,14 +213,14 @@ void putConstant(ostream& output, const int value, const int size) {
       break;
     }
     default:
-      throw exception("Failed to put constant");
+      throw std::exception("Failed to put constant");
   }
 }
 
-void putConstant(ostream& output,
+void putConstant(std::ostream& output,
                  const SOpcode::EOperand opcodeOperand,
                  const SConstant& constant,
-                 const vector<SCommand>& commands) {
+                 const std::vector<SCommand>& commands) {
   // process second operand
   switch (opcodeOperand) {
     case SOpcode::IMM8: {
@@ -242,20 +240,20 @@ void putConstant(ostream& output,
       break;
     }
     default:
-      throw exception("Failed to put operand");
+      throw std::exception("Failed to put operand");
   }
 }
 
-void putRelativeConstant(ostream& output,
+void putRelativeConstant(std::ostream& output,
                          const SOpcode::EOperand opcodeOperand,
                          const SConstant& constant,
-                         const vector<SCommand>& commands,
+                         const std::vector<SCommand>& commands,
                          uint32_t rva) {
   // process second operand
   switch (opcodeOperand) {
     case SOpcode::REL8:
     case SOpcode::REL16: {
-      throw exception("Failed to put operand");
+      throw std::exception("Failed to put operand");
       break;
     }
     case SOpcode::REL32: {
@@ -265,13 +263,13 @@ void putRelativeConstant(ostream& output,
       break;
     }
     default:
-      throw exception("Failed to put operand");
+      throw std::exception("Failed to put operand");
   }
 }
 
-void putDisplacement(ostream& output,
+void putDisplacement(std::ostream& output,
                      const SMemory& memory,
-                     const vector<SCommand>& commands) {
+                     const std::vector<SCommand>& commands) {
   const int displacementSize =
       memory.mRegisters.size() == 0
           ? 4
@@ -357,9 +355,9 @@ int getInstructionSize(const SInstruction& instruction) {
   return result;
 }
 
-void putInstruction(ostream& output,
+void putInstruction(std::ostream& output,
                     const SInstruction& instruction,
-                    const vector<SCommand>& commands,
+                    const std::vector<SCommand>& commands,
                     uint32_t rva) {
   const SOpcode& opcode = getOpcode(instruction);
 

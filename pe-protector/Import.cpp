@@ -1,27 +1,21 @@
 #include "Import.h"
-//#include <winnt.h>
+
+#include <assert.h>
 #include <windows.h>
 #include <map>
 #include <ostream>
-#include "assert.h"
-
-using std::map;
-using std::ostream;
-using std::pair;
-using std::string;
-using std::vector;
 
 namespace NPeProtector {
 namespace {
-typedef pair<int /*index in commands*/, string /*function name*/>
+typedef std::pair<int /*index in commands*/, std::string /*function name*/>
     tIndexToFunction;
-typedef vector<tIndexToFunction> tFunctions;
-typedef map<string, tFunctions> tImport;
+typedef std::vector<tIndexToFunction> tFunctions;
+typedef std::map<std::string, tFunctions> tImport;
 
 typedef tFunctions::const_iterator tFunctionIterator;
 typedef tImport::const_iterator tImportIterator;
 
-tImport getImport(const vector<SCommand>& commands) {
+tImport getImport(const std::vector<SCommand>& commands) {
   tImport result;
   for (unsigned int i = 0; i < commands.size(); ++i) {
     if (commands[i].mType == NCommand::IMPORT) {
@@ -48,7 +42,7 @@ uint32_t toRVA(void* pointer, void* base, uint32_t importRVA) {
 }
 }  // namespace
 
-int getImportSize(const vector<SCommand>& commands) {
+int getImportSize(const std::vector<SCommand>& commands) {
   const tImport& import = getImport(commands);
 
   int size = 0;
@@ -67,7 +61,7 @@ int getImportSize(const vector<SCommand>& commands) {
   return size;
 }
 
-void resolveImport(vector<SCommand>& commands, const uint32_t importRVA) {
+void resolveImport(std::vector<SCommand>& commands, const uint32_t importRVA) {
   const tImport& import = getImport(commands);
 
   const int dllNumber = import.size();
@@ -87,8 +81,8 @@ void resolveImport(vector<SCommand>& commands, const uint32_t importRVA) {
   }
 }
 
-void putImport(ostream& output,
-               const vector<SCommand>& commands,
+void putImport(std::ostream& output,
+               const std::vector<SCommand>& commands,
                const uint32_t importRVA) {
   const tImport& import = getImport(commands);
   /*

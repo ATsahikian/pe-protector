@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE command test
 #include <boost/test/included/unit_test.hpp>
 
-#include "../common/SCommand.h"
+#include "common/SCommand.h"
 
 using namespace NPeProtector;
 

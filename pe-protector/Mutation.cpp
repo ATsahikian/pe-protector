@@ -1,8 +1,7 @@
 #include "Mutation.h"
-#include <ctime>
-#include "assert.h"
 
-using std::vector;
+#include <assert.h>
+#include <ctime>
 
 namespace NPeProtector {
 namespace {
@@ -38,7 +37,7 @@ NRegister::EType getRandomRegisterForPushPop() {
   return NRegister::EAX;
 }
 
-vector<SCommand> getPushPop() {
+std::vector<SCommand> getPushPop() {
   SCommand pushCommand;
   pushCommand.mType = NCommand::INSTRUCTION;
   pushCommand.mInstruction.mType = NInstruction::PUSH;
@@ -56,10 +55,10 @@ vector<SCommand> getPushPop() {
   return {pushCommand, popCommand};
 }
 
-vector<SCommand> mutateCall(const SCommand& instruction,
-                            unsigned int nextCommandPosition) {
+std::vector<SCommand> mutateCall(const SCommand& instruction,
+                                 unsigned int nextCommandPosition) {
   assert(instruction.mInstruction.mOperands.size() == 1);
-  vector<SCommand> result = {instruction};
+  std::vector<SCommand> result = {instruction};
   if (instruction.mInstruction.mOperands[0].mType != NOperand::CONSTANT) {
     SCommand pushCommand;
     pushCommand.mType = NCommand::INSTRUCTION;
@@ -87,10 +86,10 @@ vector<SCommand> mutateCall(const SCommand& instruction,
   return result;
 }
 
-vector<SCommand> mutatePush(const SCommand& instruction) {
+std::vector<SCommand> mutatePush(const SCommand& instruction) {
   assert(instruction.mInstruction.mOperands.size() == 1);
 
-  vector<SCommand> result = {instruction};
+  std::vector<SCommand> result = {instruction};
 
   if (instruction.mInstruction.mOperands[0].mType != NOperand::REG8 &&
       !(instruction.mInstruction.mOperands[0].mType == NOperand::REG32 &&
@@ -134,10 +133,10 @@ vector<SCommand> mutatePush(const SCommand& instruction) {
   return result;
 }
 
-vector<SCommand> mutateMov(const SCommand& instruction) {
+std::vector<SCommand> mutateMov(const SCommand& instruction) {
   assert(instruction.mInstruction.mOperands.size() == 2);
 
-  vector<SCommand> result = {instruction};
+  std::vector<SCommand> result = {instruction};
   if (instruction.mInstruction.mOperands[0].mType != NOperand::REG8 &&
       instruction.mInstruction.mOperands[0].mType != NOperand::MEM8 &&
       instruction.mInstruction.mOperands[1].mType != NOperand::REG8 &&
@@ -162,7 +161,7 @@ vector<SCommand> mutateMov(const SCommand& instruction) {
   return result;
 }
 
-void shiftConstants(vector<SCommand>& commands,
+void shiftConstants(std::vector<SCommand>& commands,
                     unsigned int position,
                     int shift) {
   if (shift > 0) {
@@ -220,7 +219,7 @@ bool isApLibCodeBegin(const SCommand& command) {
   return command.mNameLabel == "_aP_depack_asm";
 }
 }  // namespace
-void mutateCommands(vector<SCommand>& commands) {
+void mutateCommands(std::vector<SCommand>& commands) {
   std::srand(static_cast<unsigned int>(
       std::time(0)));  // use current time as seed for random generator
 
@@ -232,7 +231,8 @@ void mutateCommands(vector<SCommand>& commands) {
       switch (commands[i].mInstruction.mType) {
         case NInstruction::MOV: {
           if (std::rand() % 2 == 0) {
-            const vector<SCommand>& mutatedCommands = mutateMov(commands[i]);
+            const std::vector<SCommand>& mutatedCommands =
+                mutateMov(commands[i]);
             if (mutatedCommands.size() > 1) {
               commands.erase(commands.begin() + i);
               commands.insert(commands.begin() + i, mutatedCommands.begin(),
@@ -246,7 +246,8 @@ void mutateCommands(vector<SCommand>& commands) {
         }
         case NInstruction::PUSH: {
           if (std::rand() % 2 == 0) {
-            const vector<SCommand>& mutatedCommands = mutatePush(commands[i]);
+            const std::vector<SCommand>& mutatedCommands =
+                mutatePush(commands[i]);
             if (mutatedCommands.size() > 1) {
               commands.erase(commands.begin() + i);
               commands.insert(commands.begin() + i, mutatedCommands.begin(),
@@ -266,7 +267,7 @@ void mutateCommands(vector<SCommand>& commands) {
           (commands[i].mInstruction.mType != NInstruction::CMP) &&
           (commands[i].mInstruction.mType != NInstruction::TEST)) {
         // insert random instructions!
-        const vector<SCommand>& mutatedCommands = getPushPop();
+        const std::vector<SCommand>& mutatedCommands = getPushPop();
         if (mutatedCommands.size() > 1) {
           commands.insert(commands.begin() + i + 1, mutatedCommands.begin(),
                           mutatedCommands.end());

@@ -1,17 +1,14 @@
-#include <filesystem>
-#include <fstream>
-#include <ios>
-#include "../common/SCommand.h"
-#include "../log/CLog.h"
 #include "ClientFile.h"
 #include "PeHeader.h"
 #include "ProtectPe.h"
-#include "ostream"
 
-using std::exception;
-using std::ios_base;
-using std::ofstream;
-using std::string;
+#include "common/SCommand.h"
+#include "log/CLog.h"
+
+#include <filesystem>
+#include <fstream>
+#include <ios>
+#include <ostream>
 
 /**
  * @brief pe-protector.exe fileName
@@ -20,7 +17,7 @@ int main(int argc, char* argv[], char* env[]) {
   int exitCode = 0;
   if (argc == 2) {
     std::error_code ec{};
-    std::filesystem::copy(argv[1], (argv[1] + string(".bak")).c_str(), ec);
+    std::filesystem::copy(argv[1], (argv[1] + std::string(".bak")).c_str(), ec);
     // TODO: check
     if (!ec) {
       try {
@@ -29,17 +26,18 @@ int main(int argc, char* argv[], char* env[]) {
         // test
         NPeProtector::gImageBase = clientFile.mImageBase;
 
-        ofstream fileStream(argv[1], ios_base::binary | ios_base::trunc);
+        std::ofstream fileStream(argv[1],
+                                 std::ios_base::binary | std::ios_base::trunc);
 
         if (fileStream.is_open()) {
-          LOG_INITIALIZE(string(argv[0]) + ".log");
+          LOG_INITIALIZE(std::string(argv[0]) + ".log");
 
           NPeProtector::protectPe(fileStream, clientFile);
         } else {
           printf("Failed to open file %s", argv[1]);
           exitCode = 1;
         }
-      } catch (const exception& e) {
+      } catch (const std::exception& e) {
         printf("Failed to protect file, %s", e.what());
         exitCode = 1;
       }

@@ -1,19 +1,13 @@
 #include "ClientFile.h"
-//#include <winnt.h>
-//#include <crtdbg>
-//#include <imagehlp>
-#include <windows.h>
-//#include <Wincrypt>
-#include <dbghelp.h>
-#include <fileapi.h>
-#include <winbase.h>
-//#include <winnt.h>
-#include <stdexcept>
-#include "../aplib/aplib.h"
-#include "assert.h"
 
-using std::exception;
-using std::vector;
+#include "aplib/aplib.h"
+
+#include <assert.h>
+#include <windows.h>
+#include <stdexcept>
+#include <string>
+
+#include <dbghelp.h>
 
 namespace NPeProtector {
 namespace {
@@ -104,9 +98,9 @@ const IMAGE_RESOURCE_DIRECTORY* findResource(
   return 0;
 }
 
-vector<vector<char> > getAllResource(const CFileMapping& fileMapping,
-                                     const int id) {
-  vector<vector<char> > result;
+std::vector<std::vector<char> > getAllResource(const CFileMapping& fileMapping,
+                                               const int id) {
+  std::vector<std::vector<char> > result;
   // get resource directory
   const DWORD rvaResource =
       fileMapping.getNtHeader()
@@ -140,12 +134,12 @@ vector<vector<char> > getAllResource(const CFileMapping& fileMapping,
               ((char*)fileMapping.getPointer() + dataEntry->OffsetToData);
           const int size = dataEntry->Size;
 
-          result.push_back(vector<char>(data, data + size));
+          result.push_back(std::vector<char>(data, data + size));
 
           iconEntryL2++;
         }
       } catch (...) {
-        throw exception("Failed to get resources");
+        throw std::exception("Failed to get resources");
       }
     }
   }
@@ -187,14 +181,14 @@ std::vector<char> getFirstResource(const CFileMapping& fileMapping,
 
         result.insert(result.end(), data, data + size);
       } catch (...) {
-        throw exception("Failed to get resources");
+        throw std::exception("Failed to get resources");
       }
     }
   }
   return result;
 }
 
-vector<char> compressFile(const CFileMapping& file) {
+std::vector<char> compressFile(const CFileMapping& file) {
   /* allocate workmem and destination memory */
   char* workmem = (char*)malloc(aP_workmem_size(file.getSize()));
   char* compressed = (char*)malloc(aP_max_packed_size(file.getSize()));
@@ -205,11 +199,11 @@ vector<char> compressFile(const CFileMapping& file) {
 
   /* if APLIB_ERROR is returned, and error occured */
   if (outlength == APLIB_ERROR) {
-    throw exception("aplib: an error occured!\n");
+    throw std::exception("aplib: an error occured!\n");
   }
 
   // copy
-  vector<char> result(compressed, compressed + outlength);
+  std::vector<char> result(compressed, compressed + outlength);
 
   free(workmem);
   free(compressed);
@@ -241,13 +235,14 @@ SClientFile getPeFileInfo(const char* filename) {
         result.mOEP =
             fileMapping.getNtHeader().OptionalHeader.AddressOfEntryPoint;
       } else {
-        throw exception("pe-protector doesn't support files with TLS");
+        throw std::exception("pe-protector doesn't support files with TLS");
       }
     } else {
-      throw exception("IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR != 0");
+      throw std::exception("IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR != 0");
     }
   } else {
-    throw exception("OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR32_MAGIC");
+    throw std::exception(
+        "OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR32_MAGIC");
   }
   return result;
 }

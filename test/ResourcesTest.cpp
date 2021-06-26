@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE resources test
 #include <boost/test/included/unit_test.hpp>
 
-#include "../pe-protector/ClientFile.h"
-#include "../pe-protector/Resources.h"
+#include "pe-protector/ClientFile.h"
+#include "pe-protector/Resources.h"
 
 using namespace NPeProtector;
 

@@ -1,12 +1,5 @@
 #include "ProtectPe.h"
-#include <strsafe.h>
-#include <windows.h>
-#include <ostream>
-#include <sstream>  // std::stringbuf
-#include <string>   // std::string
-#include <vector>
-#include "../common/SCommand.h"
-#include "../log/CLog.h"
+
 #include "ClientFile.h"
 #include "Data.h"
 #include "Import.h"
@@ -14,16 +7,20 @@
 #include "Mutation.h"
 #include "PeHeader.h"
 #include "Resources.h"
-#include "assert.h"
 #include "resource.h"
-#include "winuser.h"
-#include "wtypes.h"
 
-using std::exception;
-using std::istringstream;
-using std::ostream;
-using std::string;
-using std::vector;
+#include "common/SCommand.h"
+#include "log/CLog.h"
+
+#include <assert.h>
+#include <strsafe.h>
+#include <windows.h>
+#include <winuser.h>
+#include <wtypes.h>
+#include <ostream>
+#include <sstream>  // std::stringbuf
+#include <string>   // std::string
+#include <vector>
 
 namespace NPeProtector {
 // TODO move this
@@ -35,7 +32,7 @@ inline int align(int value, int al) {
 }
 namespace {
 int getDirectiveSize(SDirective& directive,
-                     const vector<SCommand>& commands,
+                     const std::vector<SCommand>& commands,
                      const SClientFile& clientFile) {
   if (directive.mName == "IMPORT_DIRECTORY") {
     directive.mDirectorySize = getImportSize(commands);
@@ -46,13 +43,14 @@ int getDirectiveSize(SDirective& directive,
   } else if (directive.mName == "COMPRESSED_FILE") {
     return clientFile.mCompressed.size();
   } else {
-    throw exception(("Failed to get directive " + directive.mName).c_str());
+    throw std::exception(
+        ("Failed to get directive " + directive.mName).c_str());
   }
   return 0;
 }
 
-void putDirective(ostream& output,
-                  const vector<SCommand>& commands,
+void putDirective(std::ostream& output,
+                  const std::vector<SCommand>& commands,
                   const SClientFile& clientFile,
                   const SDirective& directive,
                   const DWORD baseRVA) {
@@ -66,11 +64,13 @@ void putDirective(ostream& output,
                    clientFile.mCompressed.size());
     }
   } else {
-    throw exception(("Failed to get directive " + directive.mName).c_str());
+    throw std::exception(
+        ("Failed to get directive " + directive.mName).c_str());
   }
 }
 
-void resolveLabels(vector<SCommand>& commands, const SClientFile& clientFile) {
+void resolveLabels(std::vector<SCommand>& commands,
+                   const SClientFile& clientFile) {
   int nextRVA = align(getHeaderSize(), gSectionAlignment);
   int nextRAW = align(getHeaderSize(), gFileAlignment);
   int size = 0;
@@ -118,7 +118,7 @@ void resolveLabels(vector<SCommand>& commands, const SClientFile& clientFile) {
     }
   }
 }
-void putZeroBytes(ostream& output, const SCommand& command) {
+void putZeroBytes(std::ostream& output, const SCommand& command) {
   const int currentPosition = static_cast<int>(output.tellp());
   const int size = command.mRAW - currentPosition;
 
@@ -130,8 +130,8 @@ void putZeroBytes(ostream& output, const SCommand& command) {
   }
 }
 
-void putBody(ostream& output,
-             const vector<SCommand>& commands,
+void putBody(std::ostream& output,
+             const std::vector<SCommand>& commands,
              const SClientFile& clientFile) {
   for (unsigned int i = 0; i < commands.size(); ++i) {
     switch (commands[i].mType) {
@@ -157,7 +157,8 @@ void putBody(ostream& output,
   }
 }
 
-void setExterns(vector<SCommand>& commands, const SClientFile& clientFile) {
+void setExterns(std::vector<SCommand>& commands,
+                const SClientFile& clientFile) {
   for (unsigned int i = 0; i < commands.size(); ++i) {
     if (commands[i].mType == NCommand::EXTERN) {
       if (commands[i].mNameLabel == "externImageBase") {
@@ -177,8 +178,8 @@ void setExterns(vector<SCommand>& commands, const SClientFile& clientFile) {
   }
 }
 
-vector<SCommand> loadCommands() {
-  vector<SCommand> commands;
+std::vector<SCommand> loadCommands() {
+  std::vector<SCommand> commands;
 
   const HRSRC rsrcHandle = ::FindResource(
       NULL, MAKEINTRESOURCE(RESOURCE_IDENTIFIER_COMMANDS), RT_RCDATA);
@@ -187,22 +188,22 @@ vector<SCommand> loadCommands() {
     if (rsrcRawSize != 0) {
       const HGLOBAL rsrcPtr = ::LoadResource(NULL, rsrcHandle);
       if (rsrcPtr != 0) {
-        istringstream inputRsrc(string((char*)rsrcPtr, rsrcRawSize));
+        std::istringstream inputRsrc(std::string((char*)rsrcPtr, rsrcRawSize));
 
         deserialize(inputRsrc, commands);
       }
     }
   }
   if (commands.empty()) {
-    throw exception("Failed to load resources");
+    throw std::exception("Failed to load resources");
   }
   return commands;
 }
 }  // namespace
 
-void protectPe(ostream& output, const SClientFile& clientFile) {
+void protectPe(std::ostream& output, const SClientFile& clientFile) {
   // get commands
-  vector<SCommand>& commands = loadCommands();
+  std::vector<SCommand>& commands = loadCommands();
 
   // set externs
   setExterns(commands, clientFile);

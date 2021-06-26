@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE import test
 #include <boost/test/included/unit_test.hpp>
 
-#include "../pe-protector/Import.h"
+#include "pe-protector/Import.h"
 
 using namespace NPeProtector;
 

@@ -1,7 +1,8 @@
 #pragma once
 
+#include "common/Types.h"
+
 #include <windows.h>
-#include "../common/Types.h"
 
 namespace NPeProtector {
 /**

@@ -1,15 +1,12 @@
 #include "Data.h"
-#include <ostream>
 #include "PeHeader.h"
-#include "assert.h"
 
-using std::exception;
-using std::ostream;
-using std::vector;
+#include <assert.h>
+#include <ostream>
 
 namespace NPeProtector {
 uint32_t getConstantValue(const SConstant& constant,
-                          const vector<SCommand>& commands) {
+                          const std::vector<SCommand>& commands) {
   uint32_t result = constant.mValue;
 
   for (unsigned int i = 0; i < constant.mLabels.size(); ++i) {
@@ -29,9 +26,9 @@ int getDataSize(const SData& data) {
   return data.mCount * data.mSizeData * data.mConstants.size();
 }
 
-void putData(ostream& output,
+void putData(std::ostream& output,
              const SData& data,
-             const vector<SCommand>& commands) {
+             const std::vector<SCommand>& commands) {
   assert((data.mCount > 1 && data.mConstants.size() == 1) ||
          (data.mCount == 1 && data.mConstants.size() >= 1));
 
@@ -54,7 +51,7 @@ void putData(ostream& output,
           break;
         }
         default:
-          throw exception("Wrong data size");
+          throw std::exception("Wrong data size");
       }
     }
   }

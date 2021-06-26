@@ -1,76 +1,73 @@
 #include "CCompile.h"
-#include <assert.h>
-#include <iosfwd>
-#include <sstream>
-// TODO fix path
-#include "../log/CLog.h"
+
 #include "CLexicalAnalizer.h"
 
-using std::exception;
-using std::istream;
-using std::ostringstream;
-using std::string;
-using std::vector;
+#include "log/CLog.h"
+
+#include <assert.h>
+#include <istream>
+#include <sstream>
 
 namespace NPeProtector {
 namespace {
-vector<SToken> getSubTokens(const vector<SToken>& tokens,
-                            int firstIndex,
-                            int length = -1);
-vector<SToken> getSubTokens(const vector<SToken>& tokens,
-                            int firstIndex,
-                            NCategory::EType type);
+std::vector<SToken> getSubTokens(const std::vector<SToken>& tokens,
+                                 int firstIndex,
+                                 int length = -1);
+std::vector<SToken> getSubTokens(const std::vector<SToken>& tokens,
+                                 int firstIndex,
+                                 NCategory::EType type);
 
-int findLabel(const vector<SCommand>& commands, const string& label);
+int findLabel(const std::vector<SCommand>& commands, const std::string& label);
 int getDataSize(NDataType::EType dataType);
 int getScale(int value);
 int getDataTypeSize(NDataType::EType dataType);
-int getAttributes(const string& attributes);
-SConstant createConstant(const vector<SCommand>& commands,
-                         const vector<SToken>& tokens);
+int getAttributes(const std::string& attributes);
+SConstant createConstant(const std::vector<SCommand>& commands,
+                         const std::vector<SToken>& tokens);
 
-SCommand createImport(const string& label,
+SCommand createImport(const std::string& label,
                       int numberLine,
-                      const string& dllName,
-                      const string& functionName);
-SCommand createExtern(const string& label,
+                      const std::string& dllName,
+                      const std::string& functionName);
+SCommand createExtern(const std::string& label,
                       int numberLine,
                       NDataType::EType dataType,
-                      const string& name);
-SCommand createDirective(const string& label,
+                      const std::string& name);
+SCommand createDirective(const std::string& label,
                          int numberLine,
-                         const string& name);
-SCommand createSection(const string& label,
+                         const std::string& name);
+SCommand createSection(const std::string& label,
                        int numberLine,
-                       const string& nameSection,
-                       const string& attributes);
-SCommand createDummyCommand(const string& label, int numberLine);
+                       const std::string& nameSection,
+                       const std::string& attributes);
+SCommand createDummyCommand(const std::string& label, int numberLine);
 
 SOperand createOperandRegister(NRegister::EType reg);
-SOperand createOperandMemory(const vector<SCommand>& commands,
-                             const vector<SToken>& tokens,
+SOperand createOperandMemory(const std::vector<SCommand>& commands,
+                             const std::vector<SToken>& tokens,
                              NSegment::EType segment,
                              NDataType::EType dataType);
-SOperand createOperandConstant(const vector<SCommand>& commands,
-                               const vector<SToken>& tokens);
-SOperand createOperand(const vector<SCommand>& commands,
-                       const vector<SToken>& tokens);
+SOperand createOperandConstant(const std::vector<SCommand>& commands,
+                               const std::vector<SToken>& tokens);
+SOperand createOperand(const std::vector<SCommand>& commands,
+                       const std::vector<SToken>& tokens);
 
 void fillInstruction(SCommand& command,
-                     const vector<SCommand>& commands,
-                     const vector<SToken>& tokens);
+                     const std::vector<SCommand>& commands,
+                     const std::vector<SToken>& tokens);
 
-vector<SConstant> createDataString(const vector<SToken>& tokens);
-vector<SConstant> createDataConstants(const vector<SCommand>& commands,
-                                      const vector<SToken>& tokens);
+std::vector<SConstant> createDataString(const std::vector<SToken>& tokens);
+std::vector<SConstant> createDataConstants(
+    const std::vector<SCommand>& commands,
+    const std::vector<SToken>& tokens);
 
 void fillData(SCommand& command,
-              const vector<SCommand>& commands,
-              const vector<SToken>& tokens);
+              const std::vector<SCommand>& commands,
+              const std::vector<SToken>& tokens);
 
 // implementations
 
-int findToken(const vector<SToken>& tokens,
+int findToken(const std::vector<SToken>& tokens,
               const int firstIndex,
               const NCategory::EType type) {
   for (unsigned int i = firstIndex; i < tokens.size(); ++i) {
@@ -81,17 +78,17 @@ int findToken(const vector<SToken>& tokens,
   return -1;
 }
 
-vector<SToken> getSubTokens(const vector<SToken>& tokens,
-                            const int firstIndex,
-                            const int length /*= -1*/) {
-  return vector<SToken>(
+std::vector<SToken> getSubTokens(const std::vector<SToken>& tokens,
+                                 const int firstIndex,
+                                 const int length /*= -1*/) {
+  return std::vector<SToken>(
       tokens.begin() + firstIndex,
       length == -1 ? tokens.end() : tokens.begin() + firstIndex + length);
 }
 
-vector<SToken> getSubTokens(const vector<SToken>& tokens,
-                            const int firstIndex,
-                            const NCategory::EType type) {
+std::vector<SToken> getSubTokens(const std::vector<SToken>& tokens,
+                                 const int firstIndex,
+                                 const NCategory::EType type) {
   for (unsigned int i = firstIndex; i < tokens.size(); ++i) {
     if (tokens[i].mType == type) {
       return getSubTokens(tokens, firstIndex /*startPosition*/,
@@ -102,7 +99,7 @@ vector<SToken> getSubTokens(const vector<SToken>& tokens,
   return getSubTokens(tokens, firstIndex /*startPosition*/, -1 /*length*/);
 }
 
-int findLabel(const vector<SCommand>& commands, const string& label) {
+int findLabel(const std::vector<SCommand>& commands, const std::string& label) {
   for (unsigned int i = 0; i < commands.size(); ++i) {
     if (commands[i].mNameLabel == label ||
         (commands[i].mType == NCommand::DATA &&
@@ -131,8 +128,8 @@ int getDataTypeSize(const NDataType::EType dataType) {
 }
 
 // we receive here: sign label sign label sign const
-SConstant createConstant(const vector<SCommand>& commands,
-                         const vector<SToken>& tokens) {
+SConstant createConstant(const std::vector<SCommand>& commands,
+                         const std::vector<SToken>& tokens) {
   SConstant result;
 
   if (!tokens.empty()) {
@@ -211,8 +208,8 @@ SOperand createOperandRegister(const NRegister::EType reg) {
   return result;
 }
 
-SOperand createOperandMemory(const vector<SCommand>& commands,
-                             const vector<SToken>& tokens,
+SOperand createOperandMemory(const std::vector<SCommand>& commands,
+                             const std::vector<SToken>& tokens,
                              const NSegment::EType segment,
                              const NDataType::EType dataType) {
   SOperand result;
@@ -265,16 +262,16 @@ SOperand createOperandMemory(const vector<SCommand>& commands,
   return result;
 }
 
-SOperand createOperandConstant(const vector<SCommand>& commands,
-                               const vector<SToken>& tokens) {
+SOperand createOperandConstant(const std::vector<SCommand>& commands,
+                               const std::vector<SToken>& tokens) {
   SOperand result;
   result.mType = NOperand::CONSTANT;
   result.mConstant = createConstant(commands, tokens);
   return result;
 }
 
-SOperand createOperand(const vector<SCommand>& commands,
-                       const vector<SToken>& tokens) {
+SOperand createOperand(const std::vector<SCommand>& commands,
+                       const std::vector<SToken>& tokens) {
   SOperand result;
   if (tokens.size() == 1 && tokens[0].mType == NCategory::REGISTER) {
     result = createOperandRegister(NRegister::EType(tokens[0].mIndex));
@@ -283,7 +280,7 @@ SOperand createOperand(const vector<SCommand>& commands,
              tokens[2].mType == NCategory::OP_SQ_BRACKET &&
              tokens[tokens.size() - 1].mType == NCategory::CL_SQ_BRACKET) {
     result = createOperandMemory(
-        commands, vector<SToken>(tokens.begin() + 3, tokens.end() - 1),
+        commands, std::vector<SToken>(tokens.begin() + 3, tokens.end() - 1),
         NSegment::NON, NDataType::EType(tokens[0].mIndex));
   }
   // call dword ptr ds:[00923030h]
@@ -294,7 +291,7 @@ SOperand createOperand(const vector<SCommand>& commands,
            tokens[4].mType == NCategory::OP_SQ_BRACKET &&
            tokens[tokens.size() - 1].mType == NCategory::CL_SQ_BRACKET) {
     result = createOperandMemory(
-        commands, vector<SToken>(tokens.begin() + 5, tokens.end() - 1),
+        commands, std::vector<SToken>(tokens.begin() + 5, tokens.end() - 1),
         NSegment::EType(tokens[2].mIndex), NDataType::EType(tokens[0].mIndex));
   } else if (!tokens.empty() && (tokens[0].mType == NCategory::MINUS ||
                                  tokens[0].mType == NCategory::PLUS ||
@@ -308,8 +305,8 @@ SOperand createOperand(const vector<SCommand>& commands,
 }
 
 void fillInstruction(SCommand& command,
-                     const vector<SCommand>& commands,
-                     const vector<SToken>& tokens /*only operands!*/) {
+                     const std::vector<SCommand>& commands,
+                     const std::vector<SToken>& tokens /*only operands!*/) {
   assert(command.mType == NCommand::INSTRUCTION);
 
   // split operands
@@ -349,8 +346,8 @@ int getDataSize(const NDataType::EType dataType) {
   throw std::runtime_error{"invalid data type"};
 }
 
-vector<SConstant> createDataString(const SToken& token) {
-  vector<SConstant> result;
+std::vector<SConstant> createDataString(const SToken& token) {
+  std::vector<SConstant> result;
   for (unsigned int i = 0; i < token.mData.size(); ++i) {
     SConstant constant;
     constant.mValue = token.mData[i];
@@ -359,9 +356,10 @@ vector<SConstant> createDataString(const SToken& token) {
   return result;
 }
 
-vector<SConstant> createDataConstants(const vector<SCommand>& commands,
-                                      const vector<SToken>& tokens) {
-  vector<SConstant> result;
+std::vector<SConstant> createDataConstants(
+    const std::vector<SCommand>& commands,
+    const std::vector<SToken>& tokens) {
+  std::vector<SConstant> result;
   if (!tokens.empty()) {
     if (tokens[0].mType == NCategory::STRING) {
       result = createDataString(tokens[0]);
@@ -374,8 +372,8 @@ vector<SConstant> createDataConstants(const vector<SCommand>& commands,
 
 // new method const string & label, const int numberLine,
 void fillData(SCommand& command,
-              const vector<SCommand>& commands,
-              const vector<SToken>& tokens /*only value*/) {
+              const std::vector<SCommand>& commands,
+              const std::vector<SToken>& tokens /*only value*/) {
   assert(command.mType == NCommand::DATA);
 
   if (tokens.size() == 5 && tokens[0].mType == NCategory::CONSTANT &&
@@ -390,10 +388,10 @@ void fillData(SCommand& command,
   } else if (!tokens.empty()) {
     command.mData.mCount = 1;
     for (unsigned int i = 0; i < tokens.size();) {
-      const vector<SToken>& subTokens =
+      const std::vector<SToken>& subTokens =
           getSubTokens(tokens, i, NCategory::COMMA);
 
-      const vector<SConstant>& constants =
+      const std::vector<SConstant>& constants =
           createDataConstants(commands, subTokens);
       // append
       command.mData.mConstants.insert(command.mData.mConstants.end(),
@@ -408,7 +406,7 @@ void fillData(SCommand& command,
   }
 }
 
-SCommand createEndComamnd(const string& label) {
+SCommand createEndComamnd(const std::string& label) {
   SCommand result;
   result.mType = NCommand::END;
   result.mNameLabel = label;
@@ -416,7 +414,7 @@ SCommand createEndComamnd(const string& label) {
   return result;
 }
 
-SCommand createInstruction(const string& label,
+SCommand createInstruction(const std::string& label,
                            const int numberLine,
                            const NPrefix::EType prefix,
                            const NInstruction::EType instruction) {
@@ -429,9 +427,9 @@ SCommand createInstruction(const string& label,
   return result;
 }
 
-SCommand createData(const string& label,
+SCommand createData(const std::string& label,
                     const int numberLine,
-                    const string& dataName,
+                    const std::string& dataName,
                     const NDataType::EType dataType) {
   SCommand result;
   result.mType = NCommand::DATA;
@@ -442,9 +440,9 @@ SCommand createData(const string& label,
   return result;
 }
 
-SCommand createImport(const string& label,
+SCommand createImport(const std::string& label,
                       const int numberLine,
-                      const string& functionName) {
+                      const std::string& functionName) {
   SCommand result;
   result.mType = NCommand::IMPORT;
   // result.mNameLabel = dllName + "." + functionName;
@@ -452,7 +450,7 @@ SCommand createImport(const string& label,
   result.mNumberLine = numberLine;
 
   size_t dot = functionName.find('.');
-  if (dot != string::npos) {
+  if (dot != std::string::npos) {
     result.mImport.mDllName = functionName.substr(0, dot) + ".dll";
     result.mImport.mFunctionName = functionName.substr(dot + 1);
   } else {
@@ -461,10 +459,10 @@ SCommand createImport(const string& label,
   return result;
 }
 
-SCommand createExtern(const string& label,
+SCommand createExtern(const std::string& label,
                       const int numberLine,
                       const NDataType::EType dataType,
-                      const string& name) {
+                      const std::string& name) {
   SCommand result;
   result.mType = NCommand::EXTERN;
   result.mNameLabel = name;
@@ -473,9 +471,9 @@ SCommand createExtern(const string& label,
   return result;
 }
 
-SCommand createDirective(const string& label,
+SCommand createDirective(const std::string& label,
                          const int numberLine,
-                         const string& name) {
+                         const std::string& name) {
   SCommand result;
   result.mType = NCommand::DIRECTIVE;
   result.mNameLabel = label;
@@ -484,7 +482,7 @@ SCommand createDirective(const string& label,
   return result;
 }
 
-int getAttributes(const string& attributes) {
+int getAttributes(const std::string& attributes) {
   int result = 0;
   for (unsigned int i = 0; i < attributes.size(); ++i) {
     switch (attributes[i]) {
@@ -513,10 +511,10 @@ int getAttributes(const string& attributes) {
   return result;
 }
 
-SCommand createSection(const string& label,
+SCommand createSection(const std::string& label,
                        int numberLine,
-                       const string& nameSection,
-                       const string& attributes) {
+                       const std::string& nameSection,
+                       const std::string& attributes) {
   SCommand result;
   result.mType = NCommand::SECTION;
   result.mNameLabel = label;
@@ -526,8 +524,8 @@ SCommand createSection(const string& label,
   return result;
 }
 
-string toString(const NPeProtector::SToken& token) {
-  ostringstream result;
+std::string toString(const NPeProtector::SToken& token) {
+  std::ostringstream result;
   result << NPeProtector::NCategory::gStrings[token.mType];
   switch (token.mType) {
     case NCategory::COMMA:  // ','
@@ -578,8 +576,8 @@ string toString(const NPeProtector::SToken& token) {
   return result.str();
 }
 
-string toString(const vector<NPeProtector::SToken>& tokens) {
-  ostringstream result;
+std::string toString(const std::vector<NPeProtector::SToken>& tokens) {
+  std::ostringstream result;
 
   for (unsigned int i = 0; i < tokens.size(); ++i) {
     result << toString(tokens[i]) << ((i == (tokens.size() - 1)) ? "" : ", ");
@@ -588,23 +586,24 @@ string toString(const vector<NPeProtector::SToken>& tokens) {
   return result.str();
 }
 
-void loggingTokens(const vector<vector<NPeProtector::SToken> >& tokens) {
+void loggingTokens(
+    const std::vector<std::vector<NPeProtector::SToken> >& tokens) {
   for (unsigned int i = 0; i < tokens.size(); ++i) {
     LOG_DEBUG("line %d : %s", i, toString(tokens[i]).c_str());
   }
 }
 }  // namespace
 
-vector<SCommand> compile(std::istream& input) {
-  vector<SCommand> result;
+std::vector<SCommand> compile(std::istream& input) {
+  std::vector<SCommand> result;
 
-  const vector<vector<NPeProtector::SToken> >& tokens = parse(input);
+  const std::vector<std::vector<NPeProtector::SToken> >& tokens = parse(input);
 
   loggingTokens(tokens);
 
   // first scan: processing import, extern, labels and stub for instruction and
   // data
-  string currentLabel;
+  std::string currentLabel;
   for (unsigned int indexLine = 0; indexLine < tokens.size(); ++indexLine) {
     if (tokens[indexLine].empty()) {
       // skip, push empty line
@@ -687,7 +686,7 @@ vector<SCommand> compile(std::istream& input) {
   for (unsigned int indexLine = 0, indexCommand = 0; indexLine < tokens.size();
        ++indexLine) {
     // erase label in line
-    const vector<SToken>& lineTokens =
+    const std::vector<SToken>& lineTokens =
         isMatch(tokens[indexLine], {NCategory::NAME, NCategory::COLON})
             ? getSubTokens(tokens[indexLine], 2)
             : tokens[indexLine];

@@ -1,17 +1,12 @@
 #include "CLexicalAnalizer.h"
+
+#include "common\Types.h"
+
 #include <assert.h>
+#include <ctype.h>
 #include <array>
 #include <iostream>
 #include <string>
-#include "..\common\Types.h"
-#include "ctype.h"
-
-using std::exception;
-using std::getline;
-using std::istream;
-using std::stoul;
-using std::string;
-using std::vector;
 
 #define ARRAY_SIZE(array) (sizeof((array)) / sizeof((array[0])))
 
@@ -25,11 +20,11 @@ constexpr std::array sCategories = {",",
                                     "IMPORT", "EXTERN", "DUP", "PTR", "SECTION",
                                     "DIRECTIVE"};
 
-vector<string> splitLine(string line) {
-  vector<string> result;
+std::vector<std::string> splitLine(std::string line) {
+  std::vector<std::string> result;
 
   // skip comments
-  line = string(line, 0, line.find(';'));
+  line = std::string(line, 0, line.find(';'));
 
   for (unsigned int beginPosition = 0, length = 0;
        beginPosition < line.size();) {
@@ -55,10 +50,10 @@ vector<string> splitLine(string line) {
 
       // add string
       const size_t quotePosition = line.find("\"", beginStringPosition + 1);
-      if (quotePosition == string::npos) {
-        throw exception("wrong quote");
+      if (quotePosition == std::string::npos) {
+        throw std::exception("wrong quote");
       } else {
-        const size_t endStringPosition = quotePosition + 1;
+        const std::size_t endStringPosition = quotePosition + 1;
         result.push_back(line.substr(beginStringPosition,
                                      endStringPosition - beginStringPosition));
       }
@@ -88,19 +83,19 @@ vector<string> splitLine(string line) {
   return result;
 }
 
-vector<string> splitLines(istream& input) {
-  vector<string> lines;
-  string line;
-  while (getline(input, line)) {
+std::vector<std::string> splitLines(std::istream& input) {
+  std::vector<std::string> lines;
+  std::string line;
+  while (std::getline(input, line)) {
     lines.push_back(line);
   }
   return lines;
 }
 
-vector<vector<string> > split(istream& input) {
-  vector<vector<string> > tokens;
+std::vector<std::vector<std::string> > split(std::istream& input) {
+  std::vector<std::vector<std::string> > tokens;
 
-  const vector<string>& lines = splitLines(input);
+  const std::vector<std::string>& lines = splitLines(input);
 
   for (unsigned int i = 0; i < lines.size(); ++i) {
     tokens.push_back(splitLine(lines[i]));
@@ -109,7 +104,7 @@ vector<vector<string> > split(istream& input) {
 }
 
 // TODO find count of vector
-SToken getToken(const string& stringToken) {
+SToken getToken(const std::string& stringToken) {
   assert(!stringToken.empty());
 
   // scan for standard tokens
@@ -163,7 +158,7 @@ SToken getToken(const string& stringToken) {
 
   if (isdigit(stringToken[0])) {
     int base = 10;
-    string digits = stringToken;
+    std::string digits = stringToken;
 
     if (stringToken.back() == 'h' || stringToken.back() == 'H') {
       base = 16;
@@ -173,7 +168,7 @@ SToken getToken(const string& stringToken) {
     size_t index = 0;
     const unsigned int constant = stoul(digits, &index, base);
     if (index != digits.size()) {
-      throw exception(("wrong number : " + stringToken).c_str());
+      throw std::exception(("wrong number : " + stringToken).c_str());
     }
     return SToken{NCategory::CONSTANT, 0, "", constant};
   }
@@ -207,8 +202,8 @@ const char* const gStrings[] = {
 const int gSize = ARRAY_SIZE(gStrings);
 }  // namespace NCategory
 
-bool isMatch(const vector<SToken>& tokens,
-             const vector<NCategory::EType>& categories) {
+bool isMatch(const std::vector<SToken>& tokens,
+             const std::vector<NCategory::EType>& categories) {
   bool result = categories.empty();
   if (!result) {
     unsigned int i = 0;
@@ -222,13 +217,13 @@ bool isMatch(const vector<SToken>& tokens,
   return result;
 }
 
-vector<vector<SToken> > parse(istream& input) {
-  const vector<vector<string> >& tokens = split(input);
+std::vector<std::vector<SToken> > parse(std::istream& input) {
+  const std::vector<std::vector<std::string> >& tokens = split(input);
 
-  vector<vector<SToken> > result;
+  std::vector<std::vector<SToken> > result;
 
   for (unsigned int i = 0; i < tokens.size(); ++i) {
-    vector<SToken> lineTokens;
+    std::vector<SToken> lineTokens;
 
     for (unsigned int j = 0; j < tokens[i].size(); ++j) {
       if (!tokens[i][j].empty()) {

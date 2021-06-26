@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE data test
 #include <boost/test/included/unit_test.hpp>
 
-#include "../pe-protector/Data.h"
 #include "iostream"
+#include "pe-protector/Data.h"
 
 using namespace NPeProtector;
 

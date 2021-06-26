@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../common/SCommand.h"
-#include "vector"
+#include "common/SCommand.h"
+
+#include <vector>
 
 namespace NPeProtector {
 /**

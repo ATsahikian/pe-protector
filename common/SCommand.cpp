@@ -1,25 +1,21 @@
 #include "SCommand.h"
-#include <sstream>
-#include "../log/CLog.h"
 
-using std::istream;
-using std::ostream;
-using std::ostringstream;
-using std::string;
-using std::vector;
+#include "log/CLog.h"
+
+#include <sstream>
 
 namespace NPeProtector {
 namespace {
-string toString(const vector<NRegister::EType>& registers) {
-  ostringstream result;
+std::string toString(const std::vector<NRegister::EType>& registers) {
+  std::ostringstream result;
   for (unsigned int i = 0; i < registers.size(); ++i) {
     result << NRegister::gStrings[registers[i]] << " ";
   }
   return result.str();
 }
 
-string toString(const SConstant& constant) {
-  ostringstream result;
+std::string toString(const SConstant& constant) {
+  std::ostringstream result;
   result << "labels {";
   for (unsigned int i = 0; i < constant.mLabels.size(); ++i) {
     result << NSign::gStrings[constant.mLabels[i].mSign] << " ";
@@ -30,8 +26,8 @@ string toString(const SConstant& constant) {
   return result.str();
 }
 
-string toString(const SMemory& memory) {
-  ostringstream result;
+std::string toString(const SMemory& memory) {
+  std::ostringstream result;
   result << "reg {" << toString(memory.mRegisters) << "} ";
   result << "scale " << memory.mScale << " ";
   result << "seg " << NSegment::gStrings[memory.mSegment] << " ";
@@ -39,8 +35,8 @@ string toString(const SMemory& memory) {
   return result.str();
 }
 
-string toString(const vector<SOperand>& operands) {
-  ostringstream result;
+std::string toString(const std::vector<SOperand>& operands) {
+  std::ostringstream result;
   for (unsigned int i = 0; i < operands.size(); ++i) {
     result << "type " << NOperand::gStrings[operands[i].mType];
     switch (operands[i].mType) {
@@ -63,8 +59,8 @@ string toString(const vector<SOperand>& operands) {
   return result.str();
 }
 
-string toString(const SData& data) {
-  ostringstream result;
+std::string toString(const SData& data) {
+  std::ostringstream result;
   result << "name " << data.mName << " ";
   result << "sizeData " << data.mSizeData << " ";
   result << "constants {";
@@ -77,22 +73,22 @@ string toString(const SData& data) {
   return result.str();
 }
 
-string toString(const SImport& import) {
-  ostringstream result;
+std::string toString(const SImport& import) {
+  std::ostringstream result;
   result << "dllName " << import.mDllName << " ";
   result << "function " << import.mFunctionName;
   return result.str();
 }
 
-string toString(const SSection& section) {
-  ostringstream result;
+std::string toString(const SSection& section) {
+  std::ostringstream result;
   result << "name " << section.mName << " ";
   result << "attributes " << section.mAttributes;  // TODO
   return result.str();
 }
 
-string toString(const SInstruction& instruction) {
-  ostringstream result;
+std::string toString(const SInstruction& instruction) {
+  std::ostringstream result;
   result << "prefix " << NPrefix::gStrings[instruction.mPrefix] << " ";
   result << "type " << NInstruction::gStrings[instruction.mType] << " ";
   result << "operands {" << toString(instruction.mOperands) << "} ";
@@ -101,27 +97,27 @@ string toString(const SInstruction& instruction) {
 }
 }  // namespace
 
-void deserialize(istream& input, char& value) {
+void deserialize(std::istream& input, char& value) {
   input.read(&value, sizeof(value));
 }
 
-void serialize(ostream& output, const char value) {
+void serialize(std::ostream& output, const char value) {
   output.write(&value, sizeof(value));
 }
 
-void deserialize(istream& input, NRegister::EType& value) {
+void deserialize(std::istream& input, NRegister::EType& value) {
   input.read((char*)(&value), sizeof(value));
 }
 
-void deserialize(istream& input, int& value) {
+void deserialize(std::istream& input, int& value) {
   input.read((char*)(&value), sizeof(value));
 }
 
-void serialize(ostream& output, const int value) {
+void serialize(std::ostream& output, const int value) {
   output.write((char*)(&value), sizeof(value));
 }
 
-void deserialize(istream& input, string& values) {
+void deserialize(std::istream& input, std::string& values) {
   int size;
   deserialize(input, size);
   for (int i = 0; i < size; ++i) {
@@ -131,7 +127,7 @@ void deserialize(istream& input, string& values) {
   }
 }
 
-void serialize(ostream& output, const string& values) {
+void serialize(std::ostream& output, const std::string& values) {
   serialize(output, static_cast<int>(values.size()));
 
   for (unsigned int i = 0; i < values.size(); ++i) {
@@ -139,110 +135,110 @@ void serialize(ostream& output, const string& values) {
   }
 }
 
-void deserialize(istream& input, SLabel& label) {
+void deserialize(std::istream& input, SLabel& label) {
   deserialize(input, reinterpret_cast<int&>(label.mSign));
   deserialize(input, label.mIndex);
 }
 
-void serialize(ostream& output, const SLabel& label) {
+void serialize(std::ostream& output, const SLabel& label) {
   serialize(output, label.mSign);
   serialize(output, label.mIndex);
 }
 
-void deserialize(istream& input, SConstant& constant) {
+void deserialize(std::istream& input, SConstant& constant) {
   deserialize(input, constant.mLabels);
   deserialize(input, reinterpret_cast<int&>(constant.mValue));
 }
 
-void serialize(ostream& output, const SConstant& constant) {
+void serialize(std::ostream& output, const SConstant& constant) {
   serialize(output, constant.mLabels);
   serialize(output, static_cast<int>(constant.mValue));
 }
 
-void deserialize(istream& input, SMemory& operandMemory) {
+void deserialize(std::istream& input, SMemory& operandMemory) {
   deserialize(input, operandMemory.mRegisters);
   deserialize(input, operandMemory.mScale);
   deserialize(input, reinterpret_cast<int&>(operandMemory.mSegment));
   deserialize(input, operandMemory.mConstant);
 }
-void serialize(ostream& output, const SMemory& operandMemory) {
+void serialize(std::ostream& output, const SMemory& operandMemory) {
   serialize(output, operandMemory.mRegisters);
   serialize(output, operandMemory.mScale);
   serialize(output, operandMemory.mSegment);
   serialize(output, operandMemory.mConstant);
 }
-void deserialize(istream& input, SOperand& operand) {
+void deserialize(std::istream& input, SOperand& operand) {
   deserialize(input, reinterpret_cast<int&>(operand.mType));
   deserialize(input, operand.mMemory);
   deserialize(input, reinterpret_cast<int&>(operand.mRegister));
   deserialize(input, operand.mConstant);
 }
-void serialize(ostream& output, const SOperand& operand) {
+void serialize(std::ostream& output, const SOperand& operand) {
   serialize(output, operand.mType);
   serialize(output, operand.mMemory);
   serialize(output, operand.mRegister);
   serialize(output, operand.mConstant);
 }
 
-void deserialize(istream& input, SInstruction& instruction) {
+void deserialize(std::istream& input, SInstruction& instruction) {
   deserialize(input, reinterpret_cast<int&>(instruction.mPrefix));
   deserialize(input, reinterpret_cast<int&>(instruction.mType));
   deserialize(input, instruction.mOperands);
   deserialize(input, instruction.mTrash);
 }
 
-void serialize(ostream& output, const SInstruction& instruction) {
+void serialize(std::ostream& output, const SInstruction& instruction) {
   serialize(output, instruction.mPrefix);
   serialize(output, instruction.mType);
   serialize(output, instruction.mOperands);
   serialize(output, instruction.mTrash);
 }
 
-void deserialize(istream& input, SSection& section) {
+void deserialize(std::istream& input, SSection& section) {
   deserialize(input, section.mName);
   deserialize(input, section.mAttributes);
 }
 
-void serialize(ostream& output, const SSection& section) {
+void serialize(std::ostream& output, const SSection& section) {
   serialize(output, section.mName);
   serialize(output, section.mAttributes);
 }
 
-void deserialize(istream& input, SImport& import) {
+void deserialize(std::istream& input, SImport& import) {
   deserialize(input, import.mDllName);
   deserialize(input, import.mFunctionName);
 }
 
-void serialize(ostream& output, const SImport& import) {
+void serialize(std::ostream& output, const SImport& import) {
   serialize(output, import.mDllName);
   serialize(output, import.mFunctionName);
 }
 
-void deserialize(istream& input, SDirective& directive) {
+void deserialize(std::istream& input, SDirective& directive) {
   deserialize(input, directive.mName);
   deserialize(input, directive.mDirectorySize);
 }
 
-void serialize(ostream& output, const SDirective& directive) {
+void serialize(std::ostream& output, const SDirective& directive) {
   serialize(output, directive.mName);
   serialize(output, directive.mDirectorySize);
 }
 
-void deserialize(istream& input, SData& data) {
+void deserialize(std::istream& input, SData& data) {
   deserialize(input, data.mName);
   deserialize(input, data.mSizeData);
   deserialize(input, data.mConstants);
   deserialize(input, data.mCount);
 }
 
-void serialize(ostream& output, const SData& data) {
+void serialize(std::ostream& output, const SData& data) {
   serialize(output, data.mName);
   serialize(output, data.mSizeData);
   serialize(output, data.mConstants);
   serialize(output, data.mCount);
 }
 
-void deserialize(istream& input, SCommand& command) {
+void deserialize(std::istream& input, SCommand& command) {
   deserialize(input, reinterpret_cast<int&>(command.mType));
   deserialize(input, reinterpret_cast<int&>(command.mRVA));
   deserialize(input, reinterpret_cast<int&>(command.mRAW));
@@ -255,7 +251,7 @@ void deserialize(istream& input, SCommand& command) {
   deserialize(input, command.mSection);
 }
 
-void serialize(ostream& output, const SCommand& command) {
+void serialize(std::ostream& output, const SCommand& command) {
   serialize(output, command.mType);
   serialize(output, static_cast<int>(command.mRVA));
   serialize(output, static_cast<int>(command.mRAW));
@@ -268,7 +264,7 @@ void serialize(ostream& output, const SCommand& command) {
   serialize(output, command.mSection);
 }
 
-void loggingCommands(const vector<SCommand>& commands) {
+void loggingCommands(const std::vector<SCommand>& commands) {
   for (unsigned int i = 0; i < commands.size(); ++i) {
     switch (commands[i].mType) {
       case NCommand::INSTRUCTION:

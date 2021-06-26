@@ -1,19 +1,18 @@
 #include "CLog.h"
+
 #include <stdarg.h>
 #include <time.h>
 #include <sstream>
 #include <string>
 #include <thread>
 
-using std::string;
-
 namespace {
-string timeToString(const time_t& time) {
+std::string timeToString(const time_t& time) {
   char buffer[80];
 
   strftime(buffer, 80, "%c", localtime(&time));
 
-  return string(buffer);
+  return std::string(buffer);
 }
 }  // namespace
 
@@ -22,12 +21,12 @@ CLog& CLog::getInstance() {
   return log;
 }
 
-bool CLog::initialize(const string& fileName) {
+bool CLog::initialize(const std::string& fileName) {
   mFileHandle = fopen(fileName.c_str(), "w");
   return true;
 }
 
-void CLog::log(const string& type, const char* const format, ...) {
+void CLog::log(const std::string& type, const char* const format, ...) {
   va_list args;
   va_start(args, format);
 

@@ -1,12 +1,9 @@
 #include "Resources.h"
-//#include <winnt.h>
-#include <windows.h>
-#include <ostream>
-#include "algorithm"
-#include "assert.h"
 
-using std::ostream;
-using std::vector;
+#include <assert.h>
+#include <windows.h>
+#include <algorithm>
+#include <ostream>
 
 namespace NPeProtector {
 // TODO find good place!
@@ -149,7 +146,7 @@ class CResourceDirectory {
 
     assert(offset == bufferSize);
 
-    vector<char> result(buffer, buffer + bufferSize);
+    std::vector<char> result(buffer, buffer + bufferSize);
 
     delete[] buffer;
 
@@ -188,8 +185,8 @@ int getResourcesSize(const SClientFile& clientFile) {
   return resourceDirectory.getSize();
 }
 
-void putResources(ostream& output,
-                  const vector<SCommand>& commands,
+void putResources(std::ostream& output,
+                  const std::vector<SCommand>& commands,
                   const SClientFile& clientFile,
                   const uint32_t rva) {
   CResourceDirectory resourceDirectory;
@@ -204,7 +201,7 @@ void putResources(ostream& output,
     resourceDirectory.add(0x18 /*manifest*/, 1, 0x409, clientFile.mManifest);
   }
 
-  const vector<char>& resources = resourceDirectory.compile(rva);
+  const std::vector<char>& resources = resourceDirectory.compile(rva);
 
   if (!resources.empty()) {
     output.write(&resources.front(), resources.size());

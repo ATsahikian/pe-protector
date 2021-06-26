@@ -1,7 +1,8 @@
 #pragma once
 
 #include "ClientFile.h"
-#include "iosfwd"
+
+#include <iosfwd>
 
 namespace NPeProtector {
 /**

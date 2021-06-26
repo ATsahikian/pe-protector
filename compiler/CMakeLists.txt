@@ -13,6 +13,11 @@ target_link_libraries(
  PRIVATE
   liblog)
 
+target_include_directories(
+  libcompiler
+ PUBLIC
+  "${CMAKE_SOURCE_DIR}")
+
 add_executable(
   compiler
   main.cpp)

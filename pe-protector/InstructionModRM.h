@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../common/SCommand.h"
-#include "iosfwd"
+#include "common/SCommand.h"
+
+#include <iosfwd>
 
 namespace NPeProtector {
 int getDisplacementSize(const SConstant& constant, const bool isSigned);
