@@ -41,15 +41,32 @@ target_link_options(
  PUBLIC
   "/SAFESEH:NO")
 
+set(PE_PROTECTOR_STUB_BIN "pe-protector-stub.bin")
+
 add_executable(
   pe-protector
   main.cpp
   pe-protector.rc
-  resource.h)
+  resource.h
+  ${PE_PROTECTOR_STUB_BIN})
 
-#TODO: asm file, bin file, custor rule to compile asm to bin
+target_compile_definitions(
+  pe-protector
+ PRIVATE
+  PE_PROTECTOR_STUB_BIN="${PE_PROTECTOR_STUB_BIN}")
+
 target_link_libraries(
   pe-protector
  PRIVATE
   libpe-protector
   liblog)
+
+add_custom_command(
+ OUTPUT ${PE_PROTECTOR_STUB_BIN}
+ COMMAND
+   compiler
+   ${CMAKE_SOURCE_DIR}/data/pe-protector-stub.asm
+   ${PE_PROTECTOR_STUB_BIN}
+ DEPENDS
+  compiler
+  ${CMAKE_SOURCE_DIR}/data/pe-protector-stub.asm)
