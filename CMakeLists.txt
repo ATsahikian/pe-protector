@@ -7,8 +7,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 enable_testing()
 
-add_subdirectory(PeProtector)
-add_subdirectory(Compile)
-add_subdirectory(Library)
-add_subdirectory(LogLibrary)
-add_subdirectory(Test)
+add_subdirectory(pe-protector)
+add_subdirectory(compiler)
+add_subdirectory(common)
+add_subdirectory(log)
+add_subdirectory(test)

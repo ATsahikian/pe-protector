@@ -1,4 +1,4 @@
-; PeProtector
+; pe-protector
 
 IMPORT KERNEL32.VirtualAlloc
 IMPORT KERNEL32.VirtualFree
@@ -14,35 +14,35 @@ EXTERN DD externOEP
 SECTION ".text" crwe
 _stubBegin:
 
- 
+
 ;   MOV  EAX,DWORD PTR FS:[18H]
 ;   MOV  EAX,DWORD PTR [EAX + 30H]
 ;   MOVZX EAX,BYTE PTR [EAX + 2H]
-   
+
    ; test seh begin
    PUSH _sehHandler
    PUSH DWORD PTR FS:[0]	      ; address of next ERR struct
    MOV  DWORD PTR FS:[0], ESP 	  ; push ERR address in FS:[0]
-   
+
    MOV  EAX, 1234H
    MOV  EBX, DWORD PTR [EAX]
 
    POP DWORD PTR FS:[0]	   ; return previous address from FS:[0]
    ADD ESP, 4H	           ; clear stack
    JMP  _begin
-   
-_sehHandler: 
+
+_sehHandler:
 
 ; ESP + 4	pointer to EXCEPTION_RECORD
 ; ESP + 8	pointer to ERR
 ; ESP + CH	pointer to CONTEXT
 ; ESP + 10H	Param
-   
+
    ; first debug check
    MOV EAX, 10 ; fake instruction
    CMP BYTE PTR [_sehHandler], 0CCH
    JZ _stubBegin
-   
+
    ; second debug check
    CALL DWORD PTR [KERNEL32.IsDebuggerPresent]
    CMP EAX, 1
@@ -51,7 +51,7 @@ _sehHandler:
    MOV  EAX, DWORD PTR [ESP + 0CH]
    ; +B0 eax register
    MOV DWORD PTR [EAX + 0B0H], _begin
-   
+
    MOV  EAX, 0	  ; Returned values:
                   ; eax = 1 execption wasn;t processed, pass to the next exception handler in chain
                   ; eax = 0 reload context and continue execution
@@ -61,13 +61,13 @@ _begin:
    ; 0. save api
    MOV  EAX, DWORD PTR [KERNEL32.LoadLibraryA]
    MOV  DWORD PTR [ddLoadLibraryA], EAX
-   
+
    MOV  EAX, DWORD PTR [KERNEL32.GetProcAddress]
    MOV  DWORD PTR [ddGetProcAddress], EAX
 
    MOV  EAX, DWORD PTR [KERNEL32.VirtualFree]
    MOV  DWORD PTR [ddVirtualFree], EAX
-   
+
    ; 1. allocate memory for stub code
    PUSH 40H                                 ; PAGE_EXECUTE_READWRITE = 0x40
    PUSH 1000H                               ; MEM_COMMIT             = 0x00001000
@@ -76,7 +76,7 @@ _begin:
    CALL DWORD PTR [KERNEL32.VirtualAlloc]   ; LPVOID VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
    ; save allocated memory
    MOV  DWORD PTR [ddStubMemory], EAX
-   
+
    ; 2. allocate memory for compressed data
    PUSH 40H                                 ; PAGE_EXECUTE_READWRITE = 0x40
    PUSH 1000H                               ; MEM_COMMIT             = 0x00001000
@@ -92,13 +92,13 @@ _begin:
    PUSH externImageSize                      ; size
    PUSH externImageBase                      ; lpAddress
    CALL DWORD PTR [KERNEL32.VirtualProtect]  ; BOOL WINAPI VirtualProtect(LPVOID lpAddress, SIZE_T dwSize, DWORD  flNewProtect, PDWORD lpflOldProtect);
-   
+
    ; 3. copy stub code to the allocated memory
    MOV  ESI, _stubBegin
    MOV  EDI, DWORD PTR [ddStubMemory]
    MOV  ECX, _stubEnd - _stubBegin
    REPZ  MOVSB
-   
+
    ; 4. copy compressed file to the allocated memory
    MOV  ESI, _compressedFileBegin
    MOV  EDI, DWORD PTR [ddCompressedFileMemory]
@@ -108,21 +108,21 @@ _begin:
    ; save relative offset in ebp register
    MOV  EBP, DWORD PTR [ddStubMemory]
    SUB  EBP, _stubBegin
-   
+
    ; 5. pass control
    MOV  EAX, DWORD PTR [ddStubMemory]
    ADD  EAX, _jumpToAllocatedMemory - _stubBegin
    JMP  EAX
 _jumpToAllocatedMemory:
-   
+
    ; I am in the allocated memory
    MOV ECX, ECX
    MOV EDX, EDX
-   
+
    ; test memory
    MOV EBX, DWORD PTR [EBP + ddStubMemory]
    MOV EBX, DWORD PTR [EBP + ddCompressedFileMemory]
-   
+
    ; decompress
    PUSH externImageBase                     ; destination TODO provide externMemoryBase
    PUSH  DWORD PTR [EBP + ddCompressedFileMemory] ; source
@@ -130,7 +130,7 @@ _jumpToAllocatedMemory:
    ADD  ESP, 8                              ; erase stack after cdecl call
 
    ; Restore import
-   
+
    ; struct IMAGE_DOS_HEADER
    ; 0x3C LONG e_lfanew                     ; File address of new exe header
 
@@ -143,14 +143,14 @@ _jumpToAllocatedMemory:
    ; 0x80 DWORD DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress
 
    ; ASSUME EAX:PTR IMAGE_NT_HEADERS32
-   MOV  ESI, DWORD PTR [EAX + 80H]          ; 0x80 IMAGE_NT_HEADERS32.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress   
+   MOV  ESI, DWORD PTR [EAX + 80H]          ; 0x80 IMAGE_NT_HEADERS32.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress
    ADD  ESI, externImageBase
 
    ; struct IMAGE_IMPORT_DESCRIPTOR
    ; 0x00 DWORD OriginalFirstThunk
    ; 0x04 DWORD TimeDateStamp
    ; 0x08 DWORD ForwarderChain
-   ; 0x0C DWORD Name 
+   ; 0x0C DWORD Name
    ; 0x10 DWORD FirstThunk
 _importDescriptionLoopStart:
    ; ASSUME ESI:PTR IMAGE_IMPORT_DESCRIPTOR
@@ -188,10 +188,10 @@ _importDescriptionThunkName:
             ; struct _IMAGE_IMPORT_BY_NAME
             ; 0x00 WORD Hint
             ; 0x02 CHAR Name[1]
-            
+
             ; ASSUME EAX:PTR IMAGE_IMPORT_BY_NAME
             ADD  EAX, 2
-            
+
             PUSH EAX                                ; lpProcName
             PUSH DWORD PTR [EBP + ddModuleHandle]   ; hLib
             CALL DWORD PTR [EBP + ddGetProcAddress] ; FARPROC GetProcAddress(HMODULE hModule, LPCSTR  lpProcName);
@@ -207,21 +207,21 @@ _importDescriptionThunkLoopExit:
     JMP _importDescriptionLoopStart
 
 _importDescriptionLoopExit:
-   
-   
+
+
 ; antiDump:
    ;/*<thisrel this+0x30>*/ /*|0x4|*/ struct _PEB* ProcessEnvironmentBlock;
 ;   MOV   EAX, DWORD PTR FS:[30h]   ; EAX ->> PEB Struct
-  
+
    ;/*<thisrel this+0xc>*/ /*|0x4|*/ struct _PEB_LDR_DATA* Ldr;
 ;   MOV   EAX, DWORD PTR [EAX + 0CH]  ;EAX->>_PEB_LDR_DATA
-   
+
    ;/*<thisrel this+0xc>*/ /*|0x8|*/ struct _LIST_ENTRY InLoadOrderModuleList.Flink
 ;   MOV   EAX, DWORD PTR [EAX + 0CH]  ;EAX->>_LDR_DATA_TABLE_ENTRY
 
    ; loop
 ;   MOV   EBX, externImageBase
-;_antiDump_loopStart: 
+;_antiDump_loopStart:
 ;   CMP   EBX, DWORD PTR [EAX + 18H]   ;/*<thisrel this + 0x18>*/ /*|0x4|*/ void* DllBase;
 ;   JNZ   _antiDump_loopNext
    ; fix DllBase
@@ -234,7 +234,7 @@ _importDescriptionLoopExit:
 ;   POP  EAX
 ;   JMP  _antiDump_loopStart
 ;_antiDump_loopExit:
-   
+
    PUSH 8000H                                          ; MEM_RELEASE 0x8000
    PUSH 0;_compressedFileEnd - _compressedFileBegin      ; dwSize
    PUSH DWORD PTR [EBP + ddCompressedFileMemory]       ; lpAddress
@@ -248,13 +248,13 @@ _importDescriptionLoopExit:
    ADD  EAX, externOEP
    PUSH EAX
    JMP  DWORD PTR [EBP + ddVirtualFree] ; BOOL VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD dwFreeType);
-  
-   
+
+
    ; goto the original entry point
 ;   MOV  EAX, externImageBase
 ;   ADD  EAX, externOEP
 ;   JMP  EAX
-   
+
 ; aP_depack_asm(const void *source, void *destination)
 _aP_depack_asm:
     PUSHAD
@@ -363,8 +363,8 @@ donedepacking:
 
     POPAD
     RET
-    
-    
+
+
    ddStubMemory DD 0
    ddCompressedFileMemory DD 0
    ddOldProtectFlags  DD 0
@@ -374,14 +374,14 @@ donedepacking:
    ddVirtualFree DD 0
 _stubEnd:
    dummy DB 0
-   
+
 SECTION ".rdata"  ir
    DIRECTIVE IMPORT_DIRECTORY
    dummy0 DD 0FF88FF88H                     ; signature
    DIRECTIVE RECOURCE_DIRECTORY
    dummy1 DD 0FF88FF88H                     ; signature
 
-_compressedFileBegin:   
+_compressedFileBegin:
    DIRECTIVE COMPRESSED_FILE
-_compressedFileEnd: 
+_compressedFileEnd:
    dummy2 DD 0FF88FF88H                     ; signature

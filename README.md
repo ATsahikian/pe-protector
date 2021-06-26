@@ -1,9 +1,9 @@
-# PeProtector
-PeProtector protects executable files
+# pe-protector
+pe-protector protects executable files
 
 
 # For Developers
-- configure `cmake  -S ../src/ -B . -AWin32`
+- configure `cmake -S ../src/ -B . -AWin32`
 
 ![Your Repository's Stats](https://github-readme-stats.vercel.app/api?username=atsahikian&show_icons=true)
 
@@ -11,4 +11,4 @@ PeProtector protects executable files
 
 ![Viewer Status](https://komarev.com/ghpvc/?username=atsahikian)
 
-![Build Status](https://travis-ci.com/ATsahikian/PeProtector.svg?branch=master)
+![Build Status](https://travis-ci.com/ATsahikian/pe-protector.svg?branch=master)
