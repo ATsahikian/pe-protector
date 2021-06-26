@@ -19,37 +19,26 @@ struct SMzHeader {
 
 const SMzHeader sMzHeader = {
     {
-        0x5a4d,  // WORD   e_magic;                     // Magic number
-        0x0090,  // WORD   e_cblp;                      // Bytes on last page of
-                 // file
-        0x0003,  // WORD   e_cp;                        // Pages in file
-        0x0000,  // WORD   e_crlc;                      // Relocations
-        0x0004,  // WORD   e_cparhdr;                   // Size of header in
-                 // paragraphs
-        0x0000,  // WORD   e_minalloc;                  // Minimum extra
-                 // paragraphs needed
-        0xffff,  // WORD   e_maxalloc;                  // Maximum extra
-                 // paragraphs needed
-        0x0000,  // WORD   e_ss;                        // Initial (relative) SS
-                 // value
-        0x00b8,  // WORD   e_sp;                        // Initial SP value
-        0x0000,  // WORD   e_csum;                      // Checksum
-        0x0000,  // WORD   e_ip;                        // Initial IP value
-        0x0000,  // WORD   e_cs;                        // Initial (relative) CS
-                 // value
-        0x0040,  // WORD   e_lfarlc;                    // File address of
-                 // relocation table
-        0x0000,  // WORD   e_ovno;                      // Overlay number
-        0, 0, 0, 0,  // WORD   e_res[4];                    // Reserved
-                     // words
-        0,  // WORD   e_oemid;                     // OEM identifier (for
-            // e_oeminfo)
-        0,  // WORD   e_oeminfo;                   // OEM information; e_oemid
-            // specific
-        0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0,          // WORD   e_res2[10];       // Reserved words
-        0x00000080  // LONG   e_lfanew;                    // File address of
-                    // new exe header
+        0x5a4d,  // WORD   e_magic;    Magic number
+        0x0090,  // WORD   e_cblp;     Bytes on last page of file
+        0x0003,  // WORD   e_cp;       Pages in file
+        0x0000,  // WORD   e_crlc;     Relocations
+        0x0004,  // WORD   e_cparhdr;  Size of header in paragraphs
+        0x0000,  // WORD   e_minalloc; Minimum extra paragraphs needed
+        0xffff,  // WORD   e_maxalloc; Maximum extra paragraphs needed
+        0x0000,  // WORD   e_ss;       Initial (relative) SS value
+        0x00b8,  // WORD   e_sp;       Initial SP value
+        0x0000,  // WORD   e_csum;     Checksum
+        0x0000,  // WORD   e_ip;       Initial IP value
+        0x0000,  // WORD   e_cs;       Initial (relative) CS value
+        0x0040,  // WORD   e_lfarlc;   File address of relocation table
+        0x0000,  // WORD   e_ovno;     Overlay number
+        0,         0, 0, 0,  // WORD   e_res[4]; Reserved words
+        0,  // WORD   e_oemid;         OEM identifier (for e_oeminfo)
+        0,  // WORD   e_oeminfo;       OEM information; e_oemid specific
+        0,         0, 0, 0, 0, 0, 0, 0, 0,
+        0,          // WORD   e_res2[10]; Reserved words
+        0x00000080  // LONG   e_lfanew;   File address of new exe header
     },
     {0x0e, 0x1f, 0xba, 0x0e, 0x00, 0xb4, 0x09, 0xcd, 0x21},
     {'T',  'h',  'i',  's',  ' ',  'p',  'r',  'o',  'g',  'r',  'a',
@@ -76,27 +65,27 @@ IMAGE_NT_HEADERS32 sPeHeader = {
         IMAGE_NT_OPTIONAL_HDR32_MAGIC,  // WORD    Magic;
         0x05,                           // BYTE    MajorLinkerVersion;
         0x00,                           // BYTE    MinorLinkerVersion;
-        0,  // DWORD   SizeOfCode /*������ ������ .text*/
-        0,  // DWORD   SizeOfInitializedData /*������ ���� ������ � �������*/
-        0,  // DWORD   SizeOfUninitializedData;
-        0x1000,        // DWORD   AddressOfEntryPoint;
-        0x1000,        // DWORD   BaseOfCode;
-        0 /**/,        // DWORD   BaseOfData;
-        0x400000,      // DWORD   ImageBase;
-        0x00001000,    // DWORD   SectionAlignment;
-        0x00000200,    // DWORD   FileAlignment;
-        0x0004,        // WORD    MajorOperatingSystemVersion;
-        0x0000,        // WORD    MinorOperatingSystemVersion;
-        0x0000,        // WORD    MajorImageVersion;
-        0x0000,        // WORD    MinorImageVersion;
-        0x0004,        // WORD    MajorSubsystemVersion;
-        0x0000,        // WORD    MinorSubsystemVersion;
-        0,             // DWORD   Win32VersionValue;
-        0,             //??????                     // DWORD   SizeOfImage;
-        0x400,         // DWORD   SizeOfHeaders;
-        0x0 /*????*/,  // DWORD   CheckSum;
-        2,
-        /*GUI TODO replace*/  // WORD    Subsystem;
+        0,                              // DWORD   SizeOfCode /*.text*/
+        0,                              // DWORD   SizeOfInitializedData
+        0,                              // DWORD   SizeOfUninitializedData;
+        0x1000,                         // DWORD   AddressOfEntryPoint;
+        0x1000,                         // DWORD   BaseOfCode;
+        0 /**/,                         // DWORD   BaseOfData;
+        0x400000,                       // DWORD   ImageBase;
+        0x00001000,                     // DWORD   SectionAlignment;
+        0x00000200,                     // DWORD   FileAlignment;
+        0x0004,                         // WORD    MajorOperatingSystemVersion;
+        0x0000,                         // WORD    MinorOperatingSystemVersion;
+        0x0000,                         // WORD    MajorImageVersion;
+        0x0000,                         // WORD    MinorImageVersion;
+        0x0004,                         // WORD    MajorSubsystemVersion;
+        0x0000,                         // WORD    MinorSubsystemVersion;
+        0,                              // DWORD   Win32VersionValue;
+        0,                              //??????         // DWORD   SizeOfImage;
+        0x400,                          // DWORD   SizeOfHeaders;
+        0x0 /*????*/,                   // DWORD   CheckSum;
+        IMAGE_SUBSYSTEM_WINDOWS_CUI,
+        /*CUI TODO replace*/  // WORD    Subsystem;
         0,                    // WORD    DllCharacteristics;
         0x100000,             // DWORD   SizeOfStackReserve;
         0x1000,               // DWORD   SizeOfStackCommit;
