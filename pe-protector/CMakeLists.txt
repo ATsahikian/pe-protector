@@ -36,10 +36,10 @@ target_include_directories(
  PUBLIC
   "${CMAKE_SOURCE_DIR}")
 
-target_link_options(
-  libpe-protector
- PUBLIC
-  "/SAFESEH:NO")
+#target_link_options(
+#  libpe-protector
+ #PUBLIC
+#  "/SAFESEH:NO")
 
 set(PE_PROTECTOR_STUB_BIN "pe-protector-stub.bin")
 

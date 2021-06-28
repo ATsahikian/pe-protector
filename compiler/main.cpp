@@ -35,7 +35,7 @@ int main(int argc, char* argv[], char* env[]) {
         exitCode = 1;
         printf("error: can't open file %s", argv[1]);
       }
-    } catch (const std::exception& e) {
+    } catch (const std::runtime_error& e) {
       std::cout << e.what();
     }
   } else {

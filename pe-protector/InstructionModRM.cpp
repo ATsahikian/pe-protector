@@ -52,7 +52,7 @@ NRegister::EType getRegisterFromCode(const int code) {
     case 0x07:
       return NRegister::EDI;
   }
-  throw std::exception("Failed to get register from code field");
+  throw std::runtime_error("Failed to get register from code field");
 }
 
 char getModRM_Mod(const SOperand& rm) {
@@ -91,7 +91,7 @@ char getModRM_Mod(const SOperand& rm) {
       }
     }
   }
-  throw std::exception("Failed to get modrm mod field");
+  throw std::runtime_error("Failed to get modrm mod field");
 }
 
 char getModRM_RM(const SOperand& rm) {
@@ -155,7 +155,7 @@ char getModRM_RM(const SOperand& rm) {
         return 0x04;  // point to sib byte
       }
   }
-  throw std::exception("Failed to get modrm rm field");
+  throw std::runtime_error("Failed to get modrm rm field");
 }
 
 char getModRM_Reg(const NRegister::EType reg) {
@@ -173,7 +173,7 @@ char getSIB_SS(const int scale) {
     case 8:
       return 0x03;
   }
-  throw std::exception("Failed to get sib ss field");
+  throw std::runtime_error("Failed to get sib ss field");
 }
 
 char getSIB_Index(const SMemory& memory) {
@@ -182,7 +182,7 @@ char getSIB_Index(const SMemory& memory) {
   } else if (memory.mRegisters.size() == 2) {
     return getRegisterCode(memory.mRegisters[0]);
   }
-  throw std::exception("Failed to get SIB index");
+  throw std::runtime_error("Failed to get SIB index");
 }
 
 char getSIB_Reg(const SMemory& memory) {
@@ -191,7 +191,7 @@ char getSIB_Reg(const SMemory& memory) {
   } else if (memory.mRegisters.size() == 2) {
     return getRegisterCode(memory.mRegisters[1]);
   }
-  throw std::exception("Failed to get SIB register");
+  throw std::runtime_error("Failed to get SIB register");
 }
 
 bool isOperandMemory(const NOperand::EType type) {
@@ -209,13 +209,13 @@ SMemory normalizeMemory(const SMemory& memory) {
 
   if (memory.mRegisters.size() > 0 && memory.mRegisters[0] == NRegister::ESP &&
       memory.mScale > 0) {
-    throw std::exception("Impossible to create [NUMBER * ESP]");
+    throw std::runtime_error("Impossible to create [NUMBER * ESP]");
   } else if (memory.mRegisters.size() == 2 &&
              memory.mRegisters[0] == NRegister::ESP &&
              memory.mRegisters[1] == NRegister::ESP) {
-    throw std::exception("Impossible to create [ESP + ESP]");
+    throw std::runtime_error("Impossible to create [ESP + ESP]");
   } else if (memory.mRegisters.size() == 1 && memory.mScale > 0) {
-    throw std::exception("Impossible to create [NUMBER * REG]");
+    throw std::runtime_error("Impossible to create [NUMBER * REG]");
   } else if (memory.mRegisters.size() == 2 &&
              memory.mRegisters[0] == NRegister::ESP && memory.mScale == 0) {
     // swap registers
@@ -328,7 +328,7 @@ char getRegisterCode(const NRegister::EType reg) {
     case NRegister::BH:
       return 0x07;
   }
-  throw std::exception("Failed to get register code field");
+  throw std::runtime_error("Failed to get register code field");
 }
 
 }  // namespace NPeProtector

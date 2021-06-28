@@ -123,7 +123,7 @@ IMAGE_SECTION_HEADER getSection(const std::vector<SCommand>& commands,
                                 const uint32_t sizeOfImage) {
   int a = sizeof(IMAGE_NT_HEADERS32);
   int b = sizeof(IMAGE_NT_HEADERS32);
-  int c = sizeof IMAGE_FILE_HEADER;
+  int c = sizeof(IMAGE_FILE_HEADER);
   IMAGE_NT_HEADERS32* pp = 0;
   void* p1 = &pp->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT]
                   .VirtualAddress;
@@ -198,7 +198,7 @@ void putHeader(std::ostream& output,
       getSections(commands, clientFile.mImageSize);
 
   if (sections.empty()) {
-    throw std::exception("No sections");
+    throw std::runtime_error("No sections");
   }
 
   sPeHeader.FileHeader.NumberOfSections = sections.size();

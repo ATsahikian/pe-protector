@@ -17,7 +17,7 @@ int main(int argc, char* argv[], char* env[]) {
   int exitCode = 0;
   if (argc == 2) {
     std::error_code ec{};
-    const std::filesystem::path sourceFile{argv[1]};
+   const std::filesystem::path sourceFile{argv[1]};
     const std::filesystem::path targetFile{
         std::filesystem::path{sourceFile}.replace_filename(
             std::string("protected-") + sourceFile.filename().string())};
@@ -44,7 +44,7 @@ int main(int argc, char* argv[], char* env[]) {
           printf("Failed to open file %s", targetFile.string().c_str());
           exitCode = 1;
         }
-      } catch (const std::exception& e) {
+      } catch (const std::runtime_error& e) {
         printf("Failed to protect file, %s", e.what());
         exitCode = 1;
       }

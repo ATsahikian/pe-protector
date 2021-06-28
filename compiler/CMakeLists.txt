@@ -1,4 +1,7 @@
 
+find_package(range-v3 CONFIG REQUIRED)
+find_package(Boost REQUIRED)
+
 add_library(
   libcompiler
   CCompile.h
@@ -11,7 +14,12 @@ target_link_libraries(
  PUBLIC
   libcommon
  PRIVATE
-  liblog)
+  liblog
+  range-v3 
+  range-v3-meta 
+  range-v3::meta 
+  range-v3-concepts
+  Boost::boost)
 
 target_include_directories(
   libcompiler

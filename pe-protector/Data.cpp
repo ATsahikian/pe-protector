@@ -51,7 +51,7 @@ void putData(std::ostream& output,
           break;
         }
         default:
-          throw std::exception("Wrong data size");
+          throw std::runtime_error("Wrong data size");
       }
     }
   }

@@ -32,7 +32,7 @@ void CLog::log(const std::string& type, const char* const format, ...) {
 
   if (mFileHandle != 0) {
     std::stringstream ss;
-    ss << std::this_thread::get_id();
+    //ss << std::this_thread::get_id();
 
     fprintf(mFileHandle, "[%s] [%s] [%s] : ", timeToString(time(0)).c_str(),
             ss.str().c_str(), type.c_str());

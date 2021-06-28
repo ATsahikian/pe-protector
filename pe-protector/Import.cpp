@@ -38,7 +38,11 @@ int getNumberFunctions(const tImport& import) {
 }
 
 uint32_t toRVA(void* pointer, void* base, uint32_t importRVA) {
-  return ((uint32_t)pointer - (uint32_t)base) + importRVA;
+  // TODO FIX
+  // cmake -S ../pe-protector/ -B . -DVCPKG_TARGET_TRIPLET=x86-windows -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake -G "MinGW Makefiles" 
+  // https://community.chocolatey.org/packages/mingw
+  //return (reinterpret_cast<uint32_t>(pointer) - reinterpret_cast<uint32_t>(base)) + importRVA;
+  return {};
 }
 }  // namespace
 

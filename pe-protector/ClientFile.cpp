@@ -139,7 +139,7 @@ std::vector<std::vector<char> > getAllResource(const CFileMapping& fileMapping,
           iconEntryL2++;
         }
       } catch (...) {
-        throw std::exception("Failed to get resources");
+        throw std::runtime_error("Failed to get resources");
       }
     }
   }
@@ -181,7 +181,7 @@ std::vector<char> getFirstResource(const CFileMapping& fileMapping,
 
         result.insert(result.end(), data, data + size);
       } catch (...) {
-        throw std::exception("Failed to get resources");
+        throw std::runtime_error("Failed to get resources");
       }
     }
   }
@@ -199,7 +199,7 @@ std::vector<char> compressFile(const CFileMapping& file) {
 
   /* if APLIB_ERROR is returned, and error occured */
   if (outlength == APLIB_ERROR) {
-    throw std::exception("aplib: an error occured!\n");
+    throw std::runtime_error("aplib: an error occured!\n");
   }
 
   // copy
@@ -235,13 +235,13 @@ SClientFile getPeFileInfo(const char* filename) {
         result.mOEP =
             fileMapping.getNtHeader().OptionalHeader.AddressOfEntryPoint;
       } else {
-        throw std::exception("pe-protector doesn't support files with TLS");
+        throw std::runtime_error("pe-protector doesn't support files with TLS");
       }
     } else {
-      throw std::exception("IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR != 0");
+      throw std::runtime_error("IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR != 0");
     }
   } else {
-    throw std::exception(
+    throw std::runtime_error(
         "OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR32_MAGIC");
   }
   return result;

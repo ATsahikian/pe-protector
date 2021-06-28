@@ -12,11 +12,10 @@
 #include "common/SCommand.h"
 #include "log/CLog.h"
 
-#include <assert.h>
-#include <strsafe.h>
+#include <windef.h>
+
+#include <cassert>
 #include <windows.h>
-#include <winuser.h>
-#include <wtypes.h>
 #include <ostream>
 #include <sstream>  // std::stringbuf
 #include <string>   // std::string
@@ -43,7 +42,7 @@ int getDirectiveSize(SDirective& directive,
   } else if (directive.mName == "COMPRESSED_FILE") {
     return clientFile.mCompressed.size();
   } else {
-    throw std::exception(
+    throw std::runtime_error(
         ("Failed to get directive " + directive.mName).c_str());
   }
   return 0;
@@ -64,7 +63,7 @@ void putDirective(std::ostream& output,
                    clientFile.mCompressed.size());
     }
   } else {
-    throw std::exception(
+    throw std::runtime_error(
         ("Failed to get directive " + directive.mName).c_str());
   }
 }
@@ -181,7 +180,7 @@ void setExterns(std::vector<SCommand>& commands,
 std::vector<SCommand> loadCommands() {
   std::vector<SCommand> commands;
 
-  const HRSRC rsrcHandle = ::FindResource(
+  const HRSRC  rsrcHandle = ::FindResource(
       NULL, MAKEINTRESOURCE(RESOURCE_IDENTIFIER_COMMANDS), RT_RCDATA);
   if (rsrcHandle != 0) {
     const DWORD rsrcRawSize = ::SizeofResource(NULL, rsrcHandle);
@@ -195,7 +194,7 @@ std::vector<SCommand> loadCommands() {
     }
   }
   if (commands.empty()) {
-    throw std::exception("Failed to load resources");
+    throw std::runtime_error("Failed to load resources");
   }
   return commands;
 }
@@ -203,7 +202,7 @@ std::vector<SCommand> loadCommands() {
 
 void protectPe(std::ostream& output, const SClientFile& clientFile) {
   // get commands
-  std::vector<SCommand>& commands = loadCommands();
+  std::vector<SCommand> commands = loadCommands();
 
   // set externs
   setExterns(commands, clientFile);

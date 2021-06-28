@@ -117,7 +117,7 @@ bool isMatchOperand(const SOpcode::EOperand opcodeOperand,
     case SOpcode::REL32:
       return operand.mType == NOperand::CONSTANT;
     case SOpcode::NON:
-      throw std::exception("Failed to get type of operand");
+      throw std::runtime_error("Failed to get type of operand");
   };
   return false;
 }
@@ -149,7 +149,7 @@ bool isMatch(const SOpcode& opcode, const SInstruction& instruction) {
                isMatchOperand(opcode.mOperand3, instruction.mOperands[2]);
       default:
         // error
-        throw std::exception("TODO");
+        throw std::runtime_error("TODO");
     }
   }
   return false;
@@ -165,7 +165,7 @@ const SOpcode& getOpcode(const SInstruction& instruction) {
       return gOpcodes[i];
     }
   }
-  throw std::exception("Failed to find proper instruction");
+  throw std::runtime_error("Failed to find proper instruction");
 }
 
 bool isOperandImm(const SOpcode::EOperand opcodeOperand) {
@@ -213,7 +213,7 @@ void putConstant(std::ostream& output, const int value, const int size) {
       break;
     }
     default:
-      throw std::exception("Failed to put constant");
+      throw std::runtime_error("Failed to put constant");
   }
 }
 
@@ -240,7 +240,7 @@ void putConstant(std::ostream& output,
       break;
     }
     default:
-      throw std::exception("Failed to put operand");
+      throw std::runtime_error("Failed to put operand");
   }
 }
 
@@ -253,7 +253,7 @@ void putRelativeConstant(std::ostream& output,
   switch (opcodeOperand) {
     case SOpcode::REL8:
     case SOpcode::REL16: {
-      throw std::exception("Failed to put operand");
+      throw std::runtime_error("Failed to put operand");
       break;
     }
     case SOpcode::REL32: {
@@ -263,7 +263,7 @@ void putRelativeConstant(std::ostream& output,
       break;
     }
     default:
-      throw std::exception("Failed to put operand");
+      throw std::runtime_error("Failed to put operand");
   }
 }
 
