@@ -2,10 +2,17 @@
 
 #include "common\Types.h"
 
+#include "boost/variant.hpp"
+//#include <boost/fusion/adapted/std_tuple.hpp>
+#include <boost/fusion/include/adapted.hpp>
+//#include <boost/fusion/include/std_pair.hpp>
+#include "boost/tuple/tuple.hpp"
+
 #include <assert.h>
 #include <ctype.h>
 #include <array>
 #include <iostream>
+#include <optional>
 #include <sstream>
 #include <string>
 
@@ -140,7 +147,6 @@ std::vector<std::string> splitLines(std::istream& input) {
 
 std::vector<std::vector<std::string>> split(std::istream& input) {
   std::vector<std::vector<std::string>> tokens;
-
   for (const auto& line : ranges::getlines(input)) {
     tokens.push_back(splitLine(line));
   }
@@ -263,66 +269,137 @@ bool isMatch(const std::vector<SToken>& tokens,
 
 std::vector<std::vector<SToken>> parse(std::istream& input) {
   using namespace boost::spirit;
-  // using boost::spirit::x3::parse;
-  // using client::print_action;
-
-  // const std::vector<std::vector<std::string>>& tokens = split(input);
-
-  {  // example using function object
-/*
-    // call on stream
-    input >> std::noskipws;
-
-    // std::string i{input.begin(), input.end};
-
-    std::vector<std::vector<char>> a;
-    std::string s;
-
-    auto begin = boost::spirit::istream_iterator{input};
-    auto end = boost::spirit::istream_iterator{};
-
-    auto anyChar = x3::char_ - x3::eol;
-    auto comment = x3::lit(';') >> *anyChar;
-
-    auto nameFirstChar = x3::alpha | x3::char_('_');
-    auto name = nameFirstChar >> *(nameFirstChar | x3::digit | x3::char_('.'));
-
-    // all caces
-    auto empty = -comment;
-    auto import = x3::lit("IMPORT") >> name;
-    // auto import2 = x3::lit("IMPORT") >> +anyChar;
-    // auto extern_ = x3::lit("EXTERN") >> name;
-    // TODO: remove it
-    // auto unknown = *anyChar;
-*/
-    // *(char_ - eol) % eol
-    /*    std::string a2;
-        auto r2 = x3::phrase_parse(begin, end, +x3::digit, x3::lit(' '), a2);*/
-
-  //  auto r = x3::phrase_parse(begin, end,
-   //                           +(x3::char_('1') | x3::char_('_')) % x3::eol,
-     //                         x3::lit(' '), a);
-    /*std::cout << "r " << r << " a " << a.size() << std::endl;
-
-    std::copy(a.begin(), a.end(),
-              std::ostream_iterator<std::string>{std::cout, "\n"});*/
-  }
+  // call on stream TODO
   std::vector<std::vector<SToken>> result;
 
-#if 0
+  input >> std::noskipws;
+  auto begin = boost::spirit::istream_iterator{input};
+  auto end = boost::spirit::istream_iterator{};
 
+  auto anyChar = x3::rule<class anyChar, char>() = x3::char_ - x3::eol;
 
-  for (unsigned int i = 0; i < tokens.size(); ++i) {
-    std::vector<SToken> lineTokens;
+  auto quotedString = x3::rule<class quotedString, std::string>() =
+      x3::lexeme['"' >> *(x3::char_ - '"') >> '"'];
 
-    for (unsigned int j = 0; j < tokens[i].size(); ++j) {
-      if (!tokens[i][j].empty()) {
-        lineTokens.push_back(getToken(tokens[i][j]));
-      }
-    }
-    result.push_back(lineTokens);
+  auto comment = x3::rule<class comment, std::string>() =
+      x3::lit(';') >> *anyChar;
+
+  auto nameFirstChar = x3::rule<class nameFirstChar, char>() =
+      x3::alpha | x3::char_('_');
+  auto name = x3::rule<class name, std::string>() =
+      x3::lexeme[nameFirstChar >>
+                 *(nameFirstChar | x3::digit | x3::char_('.'))];
+
+  auto import = x3::rule<class import, std::string>() =
+      x3::no_case[x3::lit("IMPORT")] >> name;
+
+  auto importFn = [&result](const auto& ctx) {
+    result.push_back({SToken{NCategory::IMPORT},
+                      SToken{NCategory::NAME, 0, x3::_attr(ctx)}});
+  };
+
+  // TODO: Fix to real size
+  x3::symbols<uint32_t> dataSize;
+  // "DD", "DWORD", "DW", "WORD", "DB", "BYTE",
+  dataSize.add("dd", 0)("dword", 1)("dw", 2)("word", 3)("db", 4)("byte", 5);
+
+  auto extern_ =
+      x3::rule<class data, std::pair<int32_t /*index TODO change to size*/,
+                                     std::string>>() =
+          x3::no_case[x3::lit("EXTERN")] >> x3::no_case[dataSize] >> name;
+
+  auto externFn = [&result](auto& ctx) {
+    result.push_back({SToken{NCategory::EXTERN},
+                      SToken{NCategory::DATA_TYPE, x3::_attr(ctx).first},
+                      SToken{NCategory::NAME, 0, x3::_attr(ctx).second}});
+  };
+
+  auto section = x3::rule<
+      class sectoin,
+      std::pair<std::string /*name*/, std::string /*type TODO: parse it*/>>() =
+      x3::no_case[x3::lit("SECTION")] >> quotedString >> name /*type*/;
+
+  auto sectionFn = [&result](auto const& ctx) {
+    result.push_back({SToken{NCategory::SECTION},
+                      SToken{NCategory::STRING, 0, x3::_attr(ctx).first},
+                      SToken{NCategory::NAME, 0, x3::_attr(ctx).second}});
+  };
+
+  x3::symbols<uint32_t> inst;
+  for (uint32_t i = 0; i < NInstruction::gSize; ++i) {
+    inst.add(NInstruction::gStrings[i], i);
   }
-#endif
+
+  /*    std::vector<
+          std::pair<boost::optional<boost::variant<std::string, std::string>>,
+                    boost::optional<std::string>>>
+          vs;*/
+  auto r = x3::phrase_parse(
+      begin, end,
+      (-(extern_[externFn] | import[importFn] | section[sectionFn]) >>
+       -comment) %
+          x3::eol,
+      x3::lit(' ') | x3::lit('\t'));
+
+  std::cout << "phrase_parse result " << r << " result " << result.size()
+            << std::endl;
+
+  for (auto vt : result) {
+    for (auto t : vt) {
+      std::cout << "{" << NCategory::gStrings[t.mType] << "," << t.mIndex
+                << ",\"" << t.mData << "\"," << t.mConstant << "}";
+    }
+    std::cout << std::endl;
+  }
+
   return result;
+
+  class my_visitor : public boost::static_visitor<> {
+   public:
+    void operator()(const std::string& str) const { std::cout << str; }
+  };
+
+  /*    for (auto i : vs) {
+        if (i.first) {
+          boost::apply_visitor(my_visitor(), *i.first);
+
+          // std::cout << (*i.first).which();
+
+          // std::cout << *i.first;
+        }
+
+        if (i.second) {
+          std::cout << *i.second;
+        }
+        std::cout << std::endl;
+      }
+  */
+  // std::cout << "r " << r << " vs " << vs.size() << std::endl;
+  /*std::copy(vs.begin(), vs.end(),
+            std::ostream_iterator<std::string>{std::cout, "\n"});*/
+
+  //  auto r = x3::phrase_parse(begin, end,
+  //                           +(x3::char_('1') | x3::char_('_')) % x3::eol,
+  //                         x3::lit(' '), a);
+  /*std::cout << "r " << r << " a " << a.size() << std::endl;
+
+  */
+  /*
+    const std::vector<std::vector<std::string>>& tokens = split(input);
+
+    std::vector<std::vector<SToken>> result;
+
+    for (unsigned int i = 0; i < tokens.size(); ++i) {
+      std::vector<SToken> lineTokens;
+
+      for (unsigned int j = 0; j < tokens[i].size(); ++j) {
+        if (!tokens[i][j].empty()) {
+          lineTokens.push_back(getToken(tokens[i][j]));
+        }
+      }
+      result.push_back(lineTokens);
+    }
+
+    return result;*/
 }
 }  // namespace NPeProtector

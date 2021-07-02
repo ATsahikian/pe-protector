@@ -1,8 +1,4 @@
 ; pe-protector
-
-; pe-protector2
-
-; pe-protector3
 IMPORT KERNEL32.VirtualAlloc
 IMPORT KERNEL32.VirtualFree
 IMPORT KERNEL32.VirtualProtect

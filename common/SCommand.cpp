@@ -4,6 +4,9 @@
 
 #include <sstream>
 
+// TODO delete
+#include <iostream>
+
 namespace NPeProtector {
 namespace {
 std::string toString(const std::vector<NRegister::EType>& registers) {
@@ -265,6 +268,7 @@ void serialize(std::ostream& output, const SCommand& command) {
 }
 
 void loggingCommands(const std::vector<SCommand>& commands) {
+  std::cout << "Hello there" << std::endl;
   for (unsigned int i = 0; i < commands.size(); ++i) {
     switch (commands[i].mType) {
       case NCommand::INSTRUCTION:

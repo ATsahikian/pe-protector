@@ -1,6 +1,7 @@
 # pe-protector
 pe-protector protects executable files
 
+cmake -S ../pe-protector/ -B .  -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake -G "MinGW Makefiles"
 
 # For Developers
 - configure `cmake -S ../src/ -B . -AWin32`
