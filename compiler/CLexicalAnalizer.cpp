@@ -1,5 +1,7 @@
 #include "CLexicalAnalizer.h"
 
+#include "common\SCommand.h"
+
 #include "common\Types.h"
 
 #include "boost/variant.hpp"
@@ -25,6 +27,40 @@
 
 namespace NPeProtector {
 namespace {
+
+NOperand::EType operandType(const NRegister::EType reg) {
+  switch (reg) {
+    case NRegister::EAX:
+    case NRegister::EBX:
+    case NRegister::ECX:
+    case NRegister::EDX:
+    case NRegister::EBP:
+    case NRegister::ESP:
+    case NRegister::EDI:
+    case NRegister::ESI:
+      return NOperand::REG32;
+    case NRegister::AX:
+    case NRegister::BX:
+    case NRegister::CX:
+    case NRegister::DX:
+    case NRegister::BP:
+    case NRegister::SP:
+    case NRegister::DI:
+    case NRegister::SI:
+      return NOperand::REG16;
+    case NRegister::AL:
+    case NRegister::BL:
+    case NRegister::CL:
+    case NRegister::DL:
+    case NRegister::AH:
+    case NRegister::BH:
+    case NRegister::CH:
+    case NRegister::DH:
+      return NOperand::REG8;
+  }
+  throw std::exception();
+}
+
 constexpr std::array tokenCategories = {",",
                                         //      ".",
                                         ":", "-", "+", "(", ")", "[", "]", "*",
@@ -294,24 +330,40 @@ std::vector<std::vector<SToken>> parse(std::istream& input) {
       x3::no_case[x3::lit("IMPORT")] >> name;
 
   auto importFn = [&result](const auto& ctx) {
-    result.push_back({SToken{NCategory::IMPORT},
-                      SToken{NCategory::NAME, 0, x3::_attr(ctx)}});
+    const std::vector<SToken> ts{SToken{NCategory::IMPORT},
+                                 SToken{NCategory::NAME, 0, x3::_attr(ctx)}};
+    assert(!result.empty());
+    assert(result.back().empty());
+    std::copy(ts.cbegin(), ts.cend(), std::back_inserter(result.back()));
   };
 
   // TODO: Fix to real size
-  x3::symbols<uint32_t> dataSize;
+  x3::symbols<uint32_t> dataSymbols;
   // "DD", "DWORD", "DW", "WORD", "DB", "BYTE",
-  dataSize.add("dd", 0)("dword", 1)("dw", 2)("word", 3)("db", 4)("byte", 5);
+  dataSymbols.add("dd", 0)("dword", 1)("dw", 2)("word", 3)("db", 4)("byte", 5);
+
+  x3::symbols<NOperand::EType> memTypeSymbols;
+  dataSymbols.add("dd", NOperand::MEM32);
+  dataSymbols.add("dword", NOperand::MEM32);
+  dataSymbols.add("dw", NOperand::MEM16);
+  dataSymbols.add("word", NOperand::MEM16);
+  dataSymbols.add("db", NOperand::MEM8);
+  dataSymbols.add("byte", NOperand::MEM8);
 
   auto extern_ =
       x3::rule<class data, std::pair<int32_t /*index TODO change to size*/,
                                      std::string>>() =
-          x3::no_case[x3::lit("EXTERN")] >> x3::no_case[dataSize] >> name;
+          x3::no_case[x3::lit("EXTERN")] >> x3::no_case[dataSymbols] >> name;
 
   auto externFn = [&result](auto& ctx) {
-    result.push_back({SToken{NCategory::EXTERN},
-                      SToken{NCategory::DATA_TYPE, x3::_attr(ctx).first},
-                      SToken{NCategory::NAME, 0, x3::_attr(ctx).second}});
+    const std::vector<SToken> ts{
+        SToken{NCategory::EXTERN},
+        SToken{NCategory::DATA_TYPE, x3::_attr(ctx).first},
+        SToken{NCategory::NAME, 0, x3::_attr(ctx).second}};
+
+    assert(!result.empty());
+    assert(result.back().empty());
+    std::copy(ts.cbegin(), ts.cend(), std::back_inserter(result.back()));
   };
 
   auto section = x3::rule<
@@ -320,25 +372,174 @@ std::vector<std::vector<SToken>> parse(std::istream& input) {
       x3::no_case[x3::lit("SECTION")] >> quotedString >> name /*type*/;
 
   auto sectionFn = [&result](auto const& ctx) {
-    result.push_back({SToken{NCategory::SECTION},
-                      SToken{NCategory::STRING, 0, x3::_attr(ctx).first},
-                      SToken{NCategory::NAME, 0, x3::_attr(ctx).second}});
+    const std::vector<SToken> ts{
+        SToken{NCategory::SECTION},
+        SToken{NCategory::STRING, 0, x3::_attr(ctx).first},
+        SToken{NCategory::NAME, 0, x3::_attr(ctx).second}};
+    assert(!result.empty());
+    assert(result.back().empty());
+    std::copy(ts.cbegin(), ts.cend(), std::back_inserter(result.back()));
   };
 
-  x3::symbols<uint32_t> inst;
+  auto label = x3::rule<class label, std::string>() = name >> x3::char_(':');
+  auto labelFn = [&result](auto const& ctx) {
+    const std::vector<SToken> ts{SToken{NCategory::NAME, 0, x3::_attr(ctx)},
+                                 SToken{NCategory::COLON}};
+    assert(!result.empty());
+    std::copy(ts.cbegin(), ts.cend(), std::back_inserter(result.back()));
+  };
+
+  x3::symbols<NInstruction::EType> instSymbols;
+  // TODO: loop detection
   for (uint32_t i = 0; i < NInstruction::gSize; ++i) {
-    inst.add(NInstruction::gStrings[i], i);
+    instSymbols.add(NInstruction::gStrings[i], NInstruction::EType(i));
   }
 
-  /*    std::vector<
-          std::pair<boost::optional<boost::variant<std::string, std::string>>,
-                    boost::optional<std::string>>>
-          vs;*/
+  x3::symbols<NRegister::EType> registerSymbols;
+  // TODO: loop detection
+  for (uint32_t i = 0; i < NRegister::gSize; ++i) {
+    registerSymbols.add(NRegister::gStrings[i], NRegister::EType(i));
+  }
+
+  x3::symbols<NPrefix::EType> prefixSymbols;
+  for (uint32_t i = 0; i < NPrefix::gSize; ++i) {
+    prefixSymbols.add(NPrefix::gStrings[i], NPrefix::EType(i));
+  }
+
+  x3::symbols<NSegment::EType> segmentSymbols;
+  for (uint32_t i = 0; i < NSegment::gSize; ++i) {
+    segmentSymbols.add(NSegment::gStrings[i], NSegment::EType(i));
+  }
+
+  x3::symbols<NSign::EType> signSymbols;
+  signSymbols.add("-", NSign::MINUS)("+", NSign::PLUS);
+
+  NSign::EType signVar{};
+  auto signVarSet = [&signVar](auto const& ctx) { signVar = x3::_attr(ctx); };
+  auto signVarReset = [&signVar](auto const& ctx) { signVar = NSign::PLUS; };
+
+  uint32_t numVar{};
+  auto numVarReset = [&numVar](auto const& ctx) { numVar = 0; };
+  auto numVarSetDec = [&numVar](auto const& ctx) { numVar = x3::_attr(ctx); };
+  auto numVarSetHex = [&numVar](auto const& ctx) {
+    size_t index = 0;
+    numVar = std::stoul(x3::_attr(ctx), &index, 16);
+    if (index != x3::_attr(ctx).size()) {
+      // TODO check
+      throw std::exception();
+    }
+  };
+  // TODO check parenthesis
+  auto number = x3::rule<class number>() =
+      x3::eps[numVarReset] >> x3::uint_[numVarSetDec] |
+      // TODO x3::hex check
+      (+x3::char_("0-9a-fA-F") >> (x3::lit('h') | x3::lit('H')))[numVarSetHex];
+
+  SConstant constantVar{};
+  auto constantVarReset = [&constantVar](auto const&) {
+    constantVar = SConstant{};
+  };
+  auto constantVarNameSet = [&constantVar, &signVar](auto const&) {
+    // TODO fix this
+    constantVar.mLabels.push_back({signVar, 0 /*x3::attr_(ctx)*/});
+  };
+  auto constantVarNumSet = [&constantVar, signVar, numVar](auto const&) {
+    constantVar.mValue += signVar == NSign::PLUS ? numVar : -numVar;
+  };
+
+  auto constant = x3::rule<class constant>() =
+      x3::eps[signVarReset] >> x3::eps[constantVarReset] >>
+      -signSymbols[signVarSet] >>
+      (name[constantVarNameSet] | number[constantVarNumSet]) >>
+      *(signSymbols[signVarSet] >>
+        (name[constantVarNameSet] | number[constantVarNumSet]));
+
+  SOperand operandVar = {};
+  auto operandVarReset = [&operandVar](auto const&) {
+    operandVar = SOperand{};
+  };
+
+  auto operandVarMemTypeSet = [&operandVar](auto const& ctx) {
+    operandVar.mType = x3::_attr(ctx);
+  };
+
+  auto operandVarMemSegmentSet = [&operandVar](auto const& ctx) {
+    operandVar.mMemory.mSegment = x3::_attr(ctx);
+  };
+
+  auto operandVarMemRegisterSet = [&operandVar](auto const& ctx) {
+    operandVar.mMemory.mRegisters.push_back(x3::_attr(ctx));
+  };
+  auto operandVarMemScaleSet = [&operandVar](auto const& ctx) {
+    operandVar.mMemory.mScale = x3::_attr(ctx);
+  };
+  auto operandVarMemConstantSet = [&operandVar, constantVar](auto const&) {
+    operandVar.mMemory.mConstant = constantVar;
+  };
+  // DWORD PTR FS:[ebx + ecx*4 + mem_location]
+  auto memory = x3::rule<class memory>() =
+      (x3::no_case[memTypeSymbols] >>
+       x3::no_case["PTR"])[operandVarMemTypeSet] >>
+          -(segmentSymbols >> x3::lit(':'))[operandVarMemSegmentSet] >>
+          x3::lit('[') >>
+          -(registerSymbols[operandVarMemRegisterSet] >>
+            -registerSymbols[operandVarMemRegisterSet] >>
+            -(x3::lit('*') >>
+              /*TODO: 2,4,8:symbols*/ x3::int_)[operandVarMemScaleSet] >>
+            -(x3::lit('+') >> constant)[operandVarMemConstantSet]) |
+      constant[operandVarMemConstantSet] >> x3::lit(']');
+
+  auto operandVarRegisterSet = [&operandVar](auto const& ctx) {
+    operandVar.mRegister = x3::_attr(ctx);
+    operandVar.mType = operandType(x3::_attr(ctx));
+  };
+
+  auto operandVarConstantSet = [&operandVar, constantVar](auto const& ctx) {
+    operandVar.mConstant = constantVar;
+    operandVar.mType = NOperand::CONSTANT;
+  };
+
+  auto operand = x3::rule<class operand>() =
+      x3::eps[operandVarReset] >> (registerSymbols[operandVarRegisterSet] |
+                                   memory | constant[operandVarConstantSet]);
+
+  SInstruction instVar;
+  auto instVarReset = [&instVar](auto const&) { instVar = SInstruction{}; };
+  auto instVarPrefixSet = [&instVar](auto const& ctx) {
+    instVar.mPrefix = x3::_attr(ctx);
+  };
+  auto instVarInstSet = [&instVar](auto const& ctx) {
+    instVar.mType = x3::_attr(ctx);
+  };
+  auto instVarOperandSet = [&instVar, operandVar](auto const& ctx) {
+    instVar.mOperands.push_back(operandVar);
+  };
+
+  auto command = x3::rule<class command>() =
+      x3::eps[instVarReset] >> -prefixSymbols[instVarPrefixSet] >>
+      instSymbols[instVarInstSet] >>
+      -((operand)[instVarOperandSet] % x3::char_(','));
+
+  auto commandFn = [&result](const auto& ctx) {
+    // TODO copy instruction
+    /*  const std::vector<SToken> ts{SToken{NCategory::IMPORT},
+                                   SToken{NCategory::NAME, 0, x3::_attr(ctx)}};
+      assert(!result.empty());
+      assert(result.back().empty());
+      std::copy(ts.cbegin(), ts.cend(), std::back_inserter(result.back()));*/
+  };
+
+  // TODO back_insertert ?
+  auto pushLine = [&result]() { result.push_back({}); };
+
+  pushLine();
+
   auto r = x3::phrase_parse(
       begin, end,
-      (-(extern_[externFn] | import[importFn] | section[sectionFn]) >>
+      (-(extern_[externFn] | import[importFn] | section[sectionFn] |
+         label[labelFn] | (label[labelFn] >> command[commandFn])) >>
        -comment) %
-          x3::eol,
+          x3::eol[pushLine],
       x3::lit(' ') | x3::lit('\t'));
 
   std::cout << "phrase_parse result " << r << " result " << result.size()
@@ -357,7 +558,7 @@ std::vector<std::vector<SToken>> parse(std::istream& input) {
   class my_visitor : public boost::static_visitor<> {
    public:
     void operator()(const std::string& str) const { std::cout << str; }
-  };
+  };  // namespace NPeProtector
 
   /*    for (auto i : vs) {
         if (i.first) {
