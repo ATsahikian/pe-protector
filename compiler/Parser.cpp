@@ -147,8 +147,12 @@ std::vector<SCommand> parse(std::istream& input) {
 
   x3::symbols<uint32_t> dataSizeSymbols;
   // "DD", "DWORD", "DW", "WORD", "DB", "BYTE",
-  dataSizeSymbols.add("dd", 4)("dword", 4)("dw", 2)("word", 2)("db", 1)("byte",
-                                                                        1);
+  dataSizeSymbols.add("dd", 4);
+  dataSizeSymbols.add("dword", 4);
+  dataSizeSymbols.add("dw", 2);
+  dataSizeSymbols.add("word", 2);
+  dataSizeSymbols.add("db", 1);
+  dataSizeSymbols.add("byte", 1);
 
   x3::symbols<NOperand::EType> memTypeSymbols;
   memTypeSymbols.add("dd", NOperand::MEM32);
@@ -380,9 +384,7 @@ std::vector<SCommand> parse(std::istream& input) {
     }
   }
 
-  SCommand e = {};
-  e.mType = NCommand::END;
-  result.push_back(e);
+  result.push_back({NCommand::END});
 
   // TODO
   loggingCommands(result);
