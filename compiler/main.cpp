@@ -1,5 +1,4 @@
-#include "CCompile.h"
-#include "CLexicalAnalizer.h"
+#include "Parser.h"
 
 #include "common/SCommand.h"
 #include "common/Types.h"
@@ -26,7 +25,7 @@ int main(int argc, char* argv[], char* env[]) {
       std::ifstream file(argv[1]);
       if (file.is_open()) {
         const std::vector<NPeProtector::SCommand>& commands =
-            NPeProtector::compile(file);
+            NPeProtector::parse(file);
 
         std::ofstream binFile(argv[2], std::ios_base::binary);
 

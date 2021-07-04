@@ -4,10 +4,8 @@ find_package(Boost REQUIRED)
 
 add_library(
   libcompiler
-  CCompile.h
-  CCompile.cpp
-  CLexicalAnalizer.h
-  CLexicalAnalizer.cpp)
+  Parser.h
+  Parser.cpp)
 
 target_link_libraries(
   libcompiler

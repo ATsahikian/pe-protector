@@ -17,7 +17,7 @@ struct SLabel {
   /**
    * @brief Index in list<SCommand>
    */
-  int mIndex{};
+  std::size_t mIndex{};
 };
 
 /**
@@ -103,8 +103,8 @@ struct SData {
    */
   int mSizeData{};
   /**
-   * @brief if data is dup vector.size == 1 and count > 1. If data.size == count
-   * then it's array.
+   * @brief if data is dup vector.size == 1 and count > 1. If data.size ==
+   * count then it's array.
    */
   std::vector<SConstant> mConstants{};
   /**

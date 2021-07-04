@@ -54,7 +54,7 @@ class CLog {
 #define LOG_INITIALIZE(fileName) CLog::getInstance().initialize(fileName)
 #define LOG_ERROR(format, ...) \
   CLog::getInstance().log("error", format, ##__VA_ARGS__)
-#ifdef _DEBUG
+#ifndef NDEBUG
 #define LOG_DEBUG(format, ...) \
   CLog::getInstance().log("debug", format, ##__VA_ARGS__)
 #else

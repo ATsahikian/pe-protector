@@ -120,6 +120,14 @@ void serialize(std::ostream& output, const int value) {
   output.write((char*)(&value), sizeof(value));
 }
 
+void serialize(std::ostream& output, const std::size_t value) {
+  output.write((char*)(&value), sizeof(value));
+}
+
+void deserialize(std::istream& input, std::size_t& value) {
+  input.read((char*)(&value), sizeof(value));
+}
+
 void deserialize(std::istream& input, std::string& values) {
   int size;
   deserialize(input, size);
@@ -268,7 +276,6 @@ void serialize(std::ostream& output, const SCommand& command) {
 }
 
 void loggingCommands(const std::vector<SCommand>& commands) {
-  std::cout << "Hello there" << std::endl;
   for (unsigned int i = 0; i < commands.size(); ++i) {
     switch (commands[i].mType) {
       case NCommand::INSTRUCTION:

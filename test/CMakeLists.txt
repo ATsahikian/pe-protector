@@ -30,20 +30,6 @@ add_test(
  COMMAND command-test)
 
 add_executable(
-  compile-test
-  CompileTest.cpp)
-
-target_link_libraries(
-  compile-test
- PRIVATE
-  libcompiler
-  Boost::unit_test_framework)
-
-add_test(
- NAME compile-test
- COMMAND compile-test)
-
-add_executable(
   data-test
   DataTest.cpp)
 
@@ -86,18 +72,18 @@ add_test(
  COMMAND instruction-test)
 
 add_executable(
-  lexical-analizer-test
-  LexicalAnalizerTest.cpp)
+  parser-test
+  ParserTest.cpp)
 
 target_link_libraries(
-  lexical-analizer-test
+  parser-test
  PRIVATE
   libcompiler
   Boost::unit_test_framework)
 
 add_test(
- NAME lexical-analizer-test
- COMMAND lexical-analizer-test)
+ NAME parser-test
+ COMMAND parser-test)
 
 add_executable(
   mutation-test

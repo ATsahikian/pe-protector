@@ -13,7 +13,6 @@ EXTERN DD externOEP
 SECTION ".text" crwe
 _stubBegin:
 
-
 ;   MOV  EAX,DWORD PTR FS:[18H]
 ;   MOV  EAX,DWORD PTR [EAX + 30H]
 ;   MOVZX EAX,BYTE PTR [EAX + 2H]
@@ -363,7 +362,7 @@ donedepacking:
     POPAD
     RET
 
-
+ 
    ddStubMemory DD 0
    ddCompressedFileMemory DD 0
    ddOldProtectFlags  DD 0

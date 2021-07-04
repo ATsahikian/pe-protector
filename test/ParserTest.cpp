@@ -1,38 +1,38 @@
-#define BOOST_TEST_MODULE compile test
+#define BOOST_TEST_MODULE parser test
 #include <boost/test/included/unit_test.hpp>
 
-#include "compiler/CCompile.h"
+#include "compiler/Parser.h"
 
 using namespace NPeProtector;
 
-BOOST_AUTO_TEST_SUITE(CompileTest);
+BOOST_AUTO_TEST_SUITE(ParserTest);
 
-BOOST_AUTO_TEST_CASE(testCompileComments) {
+BOOST_AUTO_TEST_CASE(testParserComments) {
   std::stringstream input;
   input << ";23\n  ;1\n  ;12";
 
-  const std::vector<SCommand>& commands = compile(input);
+  const std::vector<SCommand>& commands = parse(input);
 
   BOOST_TEST(commands.size() == 1);
   BOOST_TEST(commands[0].mType == NCommand::END);
 }
 
-BOOST_AUTO_TEST_CASE(testCompileImport) {
+BOOST_AUTO_TEST_CASE(testParserImport) {
   std::stringstream input;
   input << "IMPORT KERNEL32.GetTickCount";
 
-  const std::vector<SCommand>& commands = compile(input);
+  const std::vector<SCommand>& commands = parse(input);
 
   BOOST_TEST(commands[0].mType == NCommand::IMPORT);
   BOOST_TEST(commands[0].mImport.mDllName == "KERNEL32.dll");
   BOOST_TEST(commands[0].mImport.mFunctionName == "GetTickCount");
 }
 
-BOOST_AUTO_TEST_CASE(testCompileData1) {
+BOOST_AUTO_TEST_CASE(testParserData1) {
   std::stringstream input;
   input << "name DD 123";
 
-  const std::vector<SCommand>& commands = compile(input);
+  const std::vector<SCommand>& commands = parse(input);
 
   BOOST_TEST(commands[0].mType == NCommand::DATA);
   BOOST_TEST(commands[0].mData.mName == "name");
@@ -41,11 +41,11 @@ BOOST_AUTO_TEST_CASE(testCompileData1) {
   BOOST_TEST(commands[0].mData.mSizeData == 4);
 }
 
-BOOST_AUTO_TEST_CASE(testCompileData2) {
+BOOST_AUTO_TEST_CASE(testParserData2) {
   std::stringstream input;
   input << "name DWORD 123";
 
-  const std::vector<SCommand>& commands = compile(input);
+  const std::vector<SCommand>& commands = parse(input);
 
   BOOST_TEST(commands[0].mType == NCommand::DATA);
   BOOST_TEST(commands[0].mData.mName == "name");
@@ -54,11 +54,11 @@ BOOST_AUTO_TEST_CASE(testCompileData2) {
   BOOST_TEST(commands[0].mData.mSizeData == 4);
 }
 
-BOOST_AUTO_TEST_CASE(testCompileDataString) {
+BOOST_AUTO_TEST_CASE(testParserDataString) {
   std::stringstream input;
   input << "szLoadLibrary DB \"LoadLibraryA\"";
 
-  const std::vector<SCommand>& commands = compile(input);
+  const std::vector<SCommand>& commands = parse(input);
 
   BOOST_TEST(commands[0].mType == NCommand::DATA);
   BOOST_TEST(commands[0].mData.mName == "szLoadLibrary");
@@ -71,11 +71,11 @@ BOOST_AUTO_TEST_CASE(testCompileDataString) {
   BOOST_TEST(commands[0].mData.mSizeData == 1);
 }
 
-BOOST_AUTO_TEST_CASE(testCompileDataCount) {
+BOOST_AUTO_TEST_CASE(testParserDataCount) {
   std::stringstream input;
   input << "name DB 1, 2, 10h";
 
-  const std::vector<SCommand>& commands = compile(input);
+  const std::vector<SCommand>& commands = parse(input);
 
   BOOST_TEST(commands[0].mType == NCommand::DATA);
   BOOST_TEST(commands[0].mData.mName == "name");
@@ -86,11 +86,11 @@ BOOST_AUTO_TEST_CASE(testCompileDataCount) {
   BOOST_TEST(commands[0].mData.mSizeData == 1);
 }
 
-BOOST_AUTO_TEST_CASE(testCompileDataDup) {
+BOOST_AUTO_TEST_CASE(testParserDataDup) {
   std::stringstream input;
   input << "testDup db 30 dup (80h)";
 
-  const std::vector<SCommand>& commands = compile(input);
+  const std::vector<SCommand>& commands = parse(input);
 
   BOOST_TEST(commands[0].mType == NCommand::DATA);
   BOOST_TEST(commands[0].mData.mName == "testDup");
@@ -98,11 +98,11 @@ BOOST_AUTO_TEST_CASE(testCompileDataDup) {
   BOOST_TEST(commands[0].mData.mConstants[0].mValue == 0x80);
   BOOST_TEST(commands[0].mData.mSizeData == 1);
 }
-BOOST_AUTO_TEST_CASE(testCompileSection) {
+BOOST_AUTO_TEST_CASE(testParserSection) {
   std::stringstream input;
   input << "SECTION \".text\" crwei";
 
-  const std::vector<SCommand>& commands = compile(input);
+  const std::vector<SCommand>& commands = parse(input);
 
   BOOST_TEST(commands[0].mType == NCommand::SECTION);
   BOOST_TEST(commands[0].mSection.mName == ".text");
@@ -118,11 +118,11 @@ BOOST_AUTO_TEST_CASE(testCompileSection) {
               NSectionAttributes::INITIALIZED) != 0);
 }
 
-BOOST_AUTO_TEST_CASE(testCompileInstruction) {
+BOOST_AUTO_TEST_CASE(testParserInstruction) {
   std::stringstream input;
   input << "MOV EAX, DWORD PTR [EAX + 0CH]";
 
-  const std::vector<SCommand>& commands = compile(input);
+  const std::vector<SCommand>& commands = parse(input);
 
   BOOST_TEST(commands[0].mType == NCommand::INSTRUCTION);
   BOOST_TEST(commands[0].mInstruction.mType == NInstruction::MOV);
@@ -136,33 +136,33 @@ BOOST_AUTO_TEST_CASE(testCompileInstruction) {
              0x0C);
 }
 
-BOOST_AUTO_TEST_CASE(testCompileExtern) {
+BOOST_AUTO_TEST_CASE(testParserExtern) {
   std::stringstream input;
   input << "EXTERN DD externImageBase";
 
-  const std::vector<SCommand>& commands = compile(input);
+  const std::vector<SCommand>& commands = parse(input);
 
   BOOST_TEST(commands[0].mType == NCommand::EXTERN);
   BOOST_TEST(commands[0].mNameLabel == "externImageBase");
   BOOST_TEST(commands[0].mData.mSizeData == 4);
 }
 
-BOOST_AUTO_TEST_CASE(testCompileLabel1) {
+BOOST_AUTO_TEST_CASE(testParserLabel1) {
   std::stringstream input;
   input << "labelName: NOP";
 
-  const std::vector<SCommand>& commands = compile(input);
+  const std::vector<SCommand>& commands = parse(input);
 
   BOOST_TEST(commands[0].mType == NCommand::INSTRUCTION);
   BOOST_TEST(commands[0].mNameLabel == "labelName");
   BOOST_TEST(commands[0].mInstruction.mType == NInstruction::NOP);
 }
 
-BOOST_AUTO_TEST_CASE(testCompileLabel2) {
+BOOST_AUTO_TEST_CASE(testParserLabel2) {
   std::stringstream input;
   input << "labelName: \n\n NOP";
 
-  const std::vector<SCommand>& commands = compile(input);
+  const std::vector<SCommand>& commands = parse(input);
 
   BOOST_TEST(commands[0].mType == NCommand::INSTRUCTION);
   BOOST_TEST(commands[0].mNameLabel == "labelName");
