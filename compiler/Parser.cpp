@@ -93,7 +93,35 @@ std::vector<SCommand> parse(std::istream& input) {
   // call on stream TODO
   std::vector<SCommand> result;
   // return result;
+#if 0
+  std::string line = "123";
 
+  std::stringstream ss{line};
+  boost::spirit::istream_iterator start{ss}, end2;
+
+  auto f3 = [](auto& ctx) {};
+  auto number = x3::rule<class number, uint32_t>() = x3::uint_[f3];
+
+  struct S {
+    int i1 = 0;
+    int i2 = 0;
+  };
+  auto fi = [](auto const& ctx) { x3::_val(ctx).i1 = 2; };
+  auto fi2 = [](auto const& ctx) { x3::_val(ctx).i2 = 1; };
+  auto p1 = x3::rule<class p1, S>() =
+      '{' >> +x3::digit[fi] >> "," >> +x3::digit >> '}';
+
+  auto f = [](auto& ctx) {
+    std::cout << "hi there: " << x3::_attr(ctx) << std::endl;
+  };
+  auto p2 = x3::rule<class p2>() = number[f];
+
+  auto r = x3::parse(start, end2, p2);
+  std::cout << "result: " << r << std::endl;
+
+  return {};
+  //
+#endif
   std::unordered_map<std::string, std::size_t> label2Index;
   std::vector<std::string> nameList;
 
@@ -106,8 +134,7 @@ std::vector<SCommand> parse(std::istream& input) {
   auto quotedString = x3::rule<class quotedString, std::string>() =
       x3::lexeme['"' >> *(x3::char_ - '"') >> '"'];
 
-  auto comment = x3::rule<class comment, std::string>() =
-      x3::lit(';') >> *anyChar;
+  auto comment = x3::rule<class comment>() = x3::lit(';') >> x3::omit[*anyChar];
 
   auto nameFirstChar = x3::rule<class nameFirstChar, char>() =
       x3::alpha | x3::char_('_');
@@ -118,6 +145,7 @@ std::vector<SCommand> parse(std::istream& input) {
   auto directive = x3::rule<class directive, std::string>() =
       x3::no_case[x3::lit("DIRECTIVE")] >> name;
 
+  // TODO think about top level functions
   auto directiveFn = [&result](const auto& ctx) {
     SCommand d;
     d.mType = NCommand::DIRECTIVE;
@@ -223,14 +251,8 @@ std::vector<SCommand> parse(std::istream& input) {
   auto signVarSet = [&signVar](auto const& ctx) { signVar = x3::_attr(ctx); };
   auto signVarReset = [&signVar](auto const& ctx) { signVar = NSign::PLUS; };
 
-  uint32_t numVar{};
-  auto numVarReset = [&numVar](auto const& ctx) { numVar = 0; };
-  auto numVarSet = [&numVar](auto const& ctx) { numVar = x3::_attr(ctx); };
-  // TODO check parenthesis
-  auto number = x3::rule<class number>() =
-      x3::eps[numVarReset] >>
-      ((x3::hex >> (x3::lit('h') | x3::lit('H')))[numVarSet] |
-       x3::uint_[numVarSet]);
+  auto number = x3::rule<class number, int32_t>() =
+      (x3::hex >> (x3::lit('h') | x3::lit('H'))) | x3::uint_;
 
   SConstant constantVar{};
   auto constantVarReset = [&constantVar](auto const&) {
@@ -242,31 +264,71 @@ std::vector<SCommand> parse(std::istream& input) {
     constantVar.mLabels.push_back({signVar, nameList.size()});
     nameList.push_back(x3::_attr(ctx));
   };
-  auto constantVarNumSet = [&constantVar, &signVar, &numVar](auto const&) {
-    constantVar.mValue += signVar == NSign::PLUS ? numVar : -numVar;
+  auto constantVarNumSet = [&constantVar, &signVar](auto const& ctx) {
+    constantVar.mValue +=
+        signVar == NSign::PLUS ? x3::_attr(ctx) : -x3::_attr(ctx);
   };
 
   auto nameOrNumber = x3::rule<class nameOrNumber>() =
       name[constantVarNameSet] | number[constantVarNumSet];
 
-  auto constant = x3::rule<class constant>() =
+  auto constant = x3::rule<class constant, SConstant>() =
       x3::eps[signVarReset] >> x3::eps[constantVarReset] >>
-      -signSymbols[signVarSet] >> nameOrNumber >>
-      *(signSymbols[signVarSet] >> nameOrNumber);
+      -(nameOrNumber % signSymbols[signVarSet]);
 
+  auto constantStr = x3::rule<class constantStr, std::string>() =
+      x3::lexeme['"' >> +(x3::char_ - '"') >> '"'];
+
+  auto dataStr =
+      x3::rule<class dataStr, std::pair<std::string, std::string>>() =
+          name >> x3::no_case[x3::lit("DB") | x3::lit("BYTE")] >> constantStr;
+
+  auto dataStrFn = [&result, &label2Index](auto const& ctx) {
+    SCommand d;
+    d.mType = NCommand::DATA;
+    d.mData.mName = x3::_attr(ctx).first;
+    d.mData.mSizeData = 1;  // byte size
+    const std::string& str = x3::_attr(ctx).second;
+    std::transform(str.cbegin(), str.cend(),
+                   std::back_inserter(d.mData.mConstants), [](char c) {
+                     return SConstant{{}, uint32_t(c)};
+                   });
+    d.mData.mCount = 1;
+    label2Index[x3::_attr(ctx).first] = result.size();
+    result.push_back(d);
+  };
+
+  std::vector<SConstant> constantVarList{};
+  auto constantVarListReset = [&constantVarList](auto const&) {
+    constantVarList.clear();
+  };
+  auto constantVarListPush = [&constantVarList, &constantVar](auto const&) {
+    constantVarList.push_back(constantVar);
+  };
+
+  auto dataReset = x3::rule<class dataReset>() = x3::eps[constantVarListReset];
+  auto dataProcess = x3::rule<class dataProcess>() =
+      x3::omit[constant[constantVarListPush] % x3::lit(',')];
   auto data = x3::rule<class data, std::pair<std::string, uint32_t>>() =
-      name >> x3::no_case[dataSizeSymbols] >> x3::omit[constant];
+      dataReset >> name >> x3::no_case[dataSizeSymbols] >> dataProcess;
 
-  auto dataFn = [&result, &constantVar, &label2Index](auto const& ctx) {
+  auto dataFn = [&result, &constantVarList, &label2Index](auto const& ctx) {
     SCommand d;
     d.mType = NCommand::DATA;
     d.mData.mName = x3::_attr(ctx).first;
     d.mData.mSizeData = x3::_attr(ctx).second;
-    d.mData.mConstants.push_back(constantVar);
-    d.mData.mCount = 1;  // TODO check
+    d.mData.mConstants = constantVarList;
+    d.mData.mCount = 1;
     label2Index[x3::_attr(ctx).first] = result.size();
     result.push_back(d);
   };
+
+  // input << "testDup db 30 dup (80h)";
+  /*auto dataDup =
+      x3::rule<class dataDup, boost::tuple<std::string, uint32_t, uint32_t>>() =
+          name >> x3::no_case[dataSizeSymbols] >> number >>
+          x3::no_case[x3::lit("DUP")] >> x3::lit('(') >> number >> x3::lit(')');
+*/
 
   SOperand operandVar = {};
   auto operandVarReset = [&operandVar](auto const&) {
@@ -350,7 +412,8 @@ std::vector<SCommand> parse(std::istream& input) {
       begin, end,
       (-(extern_[externFn] | import[importFn] | directive[directiveFn] |
          section[sectionFn] | label[labelFn] |
-         (-label[labelFn] >> command[commandFn]) | data[dataFn]) >>
+         (-label[labelFn] >> command[commandFn]) | data[dataFn] |
+         dataStr[dataStrFn]) >>
        -comment) %
           x3::eol,
       x3::lit(' ') | x3::lit('\t'));
@@ -359,12 +422,24 @@ std::vector<SCommand> parse(std::istream& input) {
     throw std::runtime_error{"Failed to parser asm file"};
   }
 
+  for (auto n : nameList) {
+    std::cout << n << std::endl;
+  }
+
+  for (auto p : label2Index) {
+    std::cout << p.first << " " << p.second << std::endl;
+  }
+
+  std::cout << "hi" << std::endl;
+  loggingCommands(result);
+
   for (auto& r : result) {
     switch (r.mType) {
       case NCommand::DATA:
         for (auto& c : r.mData.mConstants) {
           for (auto& l : c.mLabels) {
             assert(l.mIndex < nameList.size());
+            std::cout << nameList[l.mIndex] << std::endl;
             l.mIndex = label2Index.at(nameList[l.mIndex]);
           }
         }
@@ -373,10 +448,12 @@ std::vector<SCommand> parse(std::istream& input) {
         for (auto& o : r.mInstruction.mOperands) {
           for (auto& l : o.mConstant.mLabels) {
             assert(l.mIndex < nameList.size());
+            std::cout << nameList[l.mIndex] << std::endl;
             l.mIndex = label2Index.at(nameList[l.mIndex]);
           }
           for (auto& l : o.mMemory.mConstant.mLabels) {
             assert(l.mIndex < nameList.size());
+            std::cout << nameList[l.mIndex] << std::endl;
             l.mIndex = label2Index.at(nameList[l.mIndex]);
           }
         }
