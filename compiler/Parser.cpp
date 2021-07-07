@@ -90,38 +90,8 @@ NOperand::EType operandType(const NRegister::EType reg) {
 }  // namespace
 std::vector<SCommand> parse(std::istream& input) {
   using namespace boost::spirit;
-  // call on stream TODO
+
   std::vector<SCommand> result;
-  // return result;
-#if 0
-  std::string line = "123";
-
-  std::stringstream ss{line};
-  boost::spirit::istream_iterator start{ss}, end2;
-
-  auto f3 = [](auto& ctx) {};
-  auto number = x3::rule<class number, uint32_t>() = x3::uint_[f3];
-
-  struct S {
-    int i1 = 0;
-    int i2 = 0;
-  };
-  auto fi = [](auto const& ctx) { x3::_val(ctx).i1 = 2; };
-  auto fi2 = [](auto const& ctx) { x3::_val(ctx).i2 = 1; };
-  auto p1 = x3::rule<class p1, S>() =
-      '{' >> +x3::digit[fi] >> "," >> +x3::digit >> '}';
-
-  auto f = [](auto& ctx) {
-    std::cout << "hi there: " << x3::_attr(ctx) << std::endl;
-  };
-  auto p2 = x3::rule<class p2>() = number[f];
-
-  auto r = x3::parse(start, end2, p2);
-  std::cout << "result: " << r << std::endl;
-
-  return {};
-  //
-#endif
   std::unordered_map<std::string, std::size_t> label2Index;
   std::vector<std::string> nameList;
 
@@ -129,49 +99,19 @@ std::vector<SCommand> parse(std::istream& input) {
   auto begin = boost::spirit::istream_iterator{input};
   auto end = boost::spirit::istream_iterator{};
 
-  auto anyChar = x3::rule<class anyChar, char>() = x3::char_ - x3::eol;
-
-  auto quotedString = x3::rule<class quotedString, std::string>() =
-      x3::lexeme['"' >> *(x3::char_ - '"') >> '"'];
-
-  auto comment = x3::rule<class comment>() = x3::lit(';') >> x3::omit[*anyChar];
-
-  auto nameFirstChar = x3::rule<class nameFirstChar, char>() =
-      x3::alpha | x3::char_('_');
-  auto name = x3::rule<class name, std::string>() =
-      x3::lexeme[nameFirstChar >>
-                 *(nameFirstChar | x3::digit | x3::char_('.'))];
-
-  auto directive = x3::rule<class directive, std::string>() =
-      x3::no_case[x3::lit("DIRECTIVE")] >> name;
-
-  // TODO think about top level functions
-  auto directiveFn = [&result](const auto& ctx) {
-    SCommand d;
-    d.mType = NCommand::DIRECTIVE;
-    d.mDirective.mName = x3::_attr(ctx);
-    result.push_back(d);
-  };
-
-  auto import = x3::rule<class import, std::string>() =
-      x3::no_case[x3::lit("IMPORT")] >> name;
-
-  auto importFn = [&result, &label2Index](const auto& ctx) {
-    // TODO rewrite this code
-    const std::string functionName = x3::_attr(ctx);
-    SCommand i;
-    i.mType = NCommand::IMPORT;
-    i.mNameLabel = functionName;
-    size_t dot = i.mNameLabel.find('.');
-    if (dot != std::string::npos) {
-      i.mImport.mDllName = functionName.substr(0, dot) + ".dll";
-      i.mImport.mFunctionName = functionName.substr(dot + 1);
-    } else {
-      throw std::runtime_error{"Wrong import name"};
-    }
-    label2Index[functionName] = result.size();
-    result.push_back(i);
-  };
+  x3::symbols<x3::unused_type> _keywords;
+  _keywords.add("DD", x3::unused);
+  _keywords.add("DWORD", x3::unused);
+  _keywords.add("DW", x3::unused);
+  _keywords.add("WORD", x3::unused);
+  _keywords.add("DB", x3::unused);
+  _keywords.add("BYTE", x3::unused);
+  _keywords.add("EXTERN", x3::unused);
+  _keywords.add("SECTION", x3::unused);
+  _keywords.add("PTR", x3::unused);
+  _keywords.add("DUP", x3::unused);
+  _keywords.add("IMPORT", x3::unused);
+  _keywords.add("DIRECTIVE", x3::unused);
 
   x3::symbols<uint32_t> dataSizeSymbols;
   // "DD", "DWORD", "DW", "WORD", "DB", "BYTE",
@@ -190,14 +130,91 @@ std::vector<SCommand> parse(std::istream& input) {
   memTypeSymbols.add("db", NOperand::MEM8);
   memTypeSymbols.add("byte", NOperand::MEM8);
 
+  x3::symbols<NInstruction::EType> instSymbols;
+  // TODO: loop detection
+  for (uint32_t i = 0; i < NInstruction::gSize; ++i) {
+    instSymbols.add(NInstruction::gStrings[i], NInstruction::EType(i));
+    _keywords.add(NInstruction::gStrings[i], x3::unused);
+  }
+
+  x3::symbols<NRegister::EType> registerSymbols;
+  // TODO: loop detection
+  for (uint32_t i = 0; i < NRegister::gSize; ++i) {
+    registerSymbols.add(NRegister::gStrings[i], NRegister::EType(i));
+    _keywords.add(NRegister::gStrings[i], x3::unused);
+  }
+
+  x3::symbols<NPrefix::EType> prefixSymbols;
+  for (uint32_t i = 0; i < NPrefix::gSize; ++i) {
+    prefixSymbols.add(NPrefix::gStrings[i], NPrefix::EType(i));
+    _keywords.add(NPrefix::gStrings[i], x3::unused);
+  }
+
+  x3::symbols<NSegment::EType> segmentSymbols;
+  for (uint32_t i = 0; i < NSegment::gSize; ++i) {
+    segmentSymbols.add(NSegment::gStrings[i], NSegment::EType(i));
+    _keywords.add(NSegment::gStrings[i], x3::unused);
+  }
+
+  x3::symbols<NSign::EType> signSymbols;
+  signSymbols.add("-", NSign::MINUS)("+", NSign::PLUS);
+
+  auto const keywords =
+      x3::lexeme[x3::no_case[_keywords] >> !(x3::alnum | '_')];
+
+  auto blank = x3::omit[+x3::blank];
+
+  auto anyChar = x3::rule<class anyChar, char>() = x3::char_ - x3::eol;
+
+  auto quotedString = x3::rule<class quotedString, std::string>() =
+      x3::lexeme['"' >> *(x3::char_ - '"') >> '"'];
+
+  auto comment = x3::rule<class comment>() = x3::lit(';') >> x3::omit[*anyChar];
+
+  auto name = x3::rule<class name, std::string>() =
+      x3::lexeme[(x3::alpha | x3::char_('_')) >>
+                 *(x3::alnum | x3::char_('.') | x3::char_('_'))] -
+      keywords;
+
+  auto directive = x3::rule<class directive, std::string>() =
+      x3::lexeme[x3::lit("DIRECTIVE") >> blank >> name];
+
+  // TODO think about top level functions
+  auto directiveFn = [&result](const auto& ctx) {
+    SCommand d;
+    d.mType = NCommand::DIRECTIVE;
+    d.mDirective.mName = x3::_attr(ctx);
+    result.push_back(d);
+  };
+
+  auto import = x3::rule<class import, std::string>() =
+      x3::lexeme[x3::no_case[x3::lit("IMPORT")] >> blank >> name];
+
+  auto importFn = [&result, &label2Index](const auto& ctx) {
+    // TODO rewrite this code
+    const std::string functionName = x3::_attr(ctx);
+    SCommand i;
+    i.mType = NCommand::IMPORT;
+    i.mNameLabel = functionName;
+    size_t dot = i.mNameLabel.find('.');
+    if (dot != std::string::npos) {
+      i.mImport.mDllName = functionName.substr(0, dot) + ".dll";
+      i.mImport.mFunctionName = functionName.substr(dot + 1);
+    } else {
+      throw std::runtime_error{"Wrong import name"};
+    }
+    label2Index[functionName] = result.size();
+    result.push_back(i);
+  };
+
   auto extern_ = x3::rule<class extern_, std::pair<uint32_t, std::string>>() =
-      x3::no_case[x3::lit("EXTERN")] >> x3::no_case[dataSizeSymbols] >> name;
+      x3::lexeme[x3::no_case[x3::lit("EXTERN")] >> blank >>
+                 x3::no_case[dataSizeSymbols] >> blank >> name];
 
   auto externFn = [&result, &label2Index](auto& ctx) {
     SCommand e;
     e.mType = NCommand::EXTERN;
     e.mNameLabel = x3::_attr(ctx).second;
-    // e.mNumberLine = numberLine;
     e.mData.mSizeData = x3::_attr(ctx).first;
     label2Index[e.mNameLabel] = result.size();
     result.push_back(e);
@@ -206,12 +223,12 @@ std::vector<SCommand> parse(std::istream& input) {
   auto section = x3::rule<
       class sectoin,
       std::pair<std::string /*name*/, std::string /*type TODO: parse it*/>>() =
-      x3::no_case[x3::lit("SECTION")] >> quotedString >> name /*type*/;
+      x3::lexeme[x3::no_case[x3::lit("SECTION")] >> blank >> quotedString >>
+                 blank >> name /*type*/];
 
   auto sectionFn = [&result](auto const& ctx) {
     SCommand s;
     s.mType = NCommand::SECTION;
-    // s.mNumberLine = numberLine;
     s.mSection.mName = x3::_attr(ctx).first;
     s.mSection.mAttributes = getAttributes(x3::_attr(ctx).second);
     result.push_back(s);
@@ -222,66 +239,40 @@ std::vector<SCommand> parse(std::istream& input) {
     label2Index[x3::_attr(ctx)] = result.size();
   };
 
-  x3::symbols<NInstruction::EType> instSymbols;
-  // TODO: loop detection
-  for (uint32_t i = 0; i < NInstruction::gSize; ++i) {
-    instSymbols.add(NInstruction::gStrings[i], NInstruction::EType(i));
-  }
-
-  x3::symbols<NRegister::EType> registerSymbols;
-  // TODO: loop detection
-  for (uint32_t i = 0; i < NRegister::gSize; ++i) {
-    registerSymbols.add(NRegister::gStrings[i], NRegister::EType(i));
-  }
-
-  x3::symbols<NPrefix::EType> prefixSymbols;
-  for (uint32_t i = 0; i < NPrefix::gSize; ++i) {
-    prefixSymbols.add(NPrefix::gStrings[i], NPrefix::EType(i));
-  }
-
-  x3::symbols<NSegment::EType> segmentSymbols;
-  for (uint32_t i = 0; i < NSegment::gSize; ++i) {
-    segmentSymbols.add(NSegment::gStrings[i], NSegment::EType(i));
-  }
-
-  x3::symbols<NSign::EType> signSymbols;
-  signSymbols.add("-", NSign::MINUS)("+", NSign::PLUS);
-
   NSign::EType signVar{};
   auto signVarSet = [&signVar](auto const& ctx) { signVar = x3::_attr(ctx); };
   auto signVarReset = [&signVar](auto const& ctx) { signVar = NSign::PLUS; };
 
   auto number = x3::rule<class number, int32_t>() =
-      (x3::hex >> (x3::lit('h') | x3::lit('H'))) | x3::uint_;
+      x3::lexeme[(x3::hex >> (x3::lit('h') | x3::lit('H')))] | x3::uint_;
 
-  SConstant constantVar{};
-  auto constantVarReset = [&constantVar](auto const&) {
-    constantVar = SConstant{};
-  };
-  auto constantVarNameSet = [&constantVar, &signVar,
-                             &nameList](auto const& ctx) {
-    // TODO fix this
-    constantVar.mLabels.push_back({signVar, nameList.size()});
+  auto constantVarNameSet = [&signVar, &nameList](auto& ctx) {
+    x3::_val(ctx).mLabels.push_back({signVar, nameList.size()});
     nameList.push_back(x3::_attr(ctx));
   };
-  auto constantVarNumSet = [&constantVar, &signVar](auto const& ctx) {
-    constantVar.mValue +=
+  auto constantVarNumSet = [&signVar](auto& ctx) {
+    x3::_val(ctx).mValue +=
         signVar == NSign::PLUS ? x3::_attr(ctx) : -x3::_attr(ctx);
   };
 
-  auto nameOrNumber = x3::rule<class nameOrNumber>() =
-      name[constantVarNameSet] | number[constantVarNumSet];
-
   auto constant = x3::rule<class constant, SConstant>() =
-      x3::eps[signVarReset] >> x3::eps[constantVarReset] >>
-      -(nameOrNumber % signSymbols[signVarSet]);
+      x3::eps[signVarReset] >>
+      ((name[constantVarNameSet] | number[constantVarNumSet]) %
+       signSymbols[signVarSet]);
+
+  auto constantAppend = x3::rule<class constantAppend, SConstant>() =
+      x3::eps[signVarReset] >> signSymbols[signVarSet] >>
+      ((name[constantVarNameSet] | number[constantVarNumSet]) %
+       signSymbols[signVarSet]);
 
   auto constantStr = x3::rule<class constantStr, std::string>() =
       x3::lexeme['"' >> +(x3::char_ - '"') >> '"'];
 
   auto dataStr =
       x3::rule<class dataStr, std::pair<std::string, std::string>>() =
-          name >> x3::no_case[x3::lit("DB") | x3::lit("BYTE")] >> constantStr;
+          x3::lexeme[name >> blank >>
+                     x3::no_case[x3::lit("DB") | x3::lit("BYTE")] >> blank] >>
+          constantStr;
 
   auto dataStrFn = [&result, &label2Index](auto const& ctx) {
     SCommand d;
@@ -298,69 +289,69 @@ std::vector<SCommand> parse(std::istream& input) {
     result.push_back(d);
   };
 
-  std::vector<SConstant> constantVarList{};
-  auto constantVarListReset = [&constantVarList](auto const&) {
-    constantVarList.clear();
+  auto constantVarListPush = [](auto& ctx) {
+    x3::_val(ctx).push_back(x3::_attr(ctx));
   };
-  auto constantVarListPush = [&constantVarList, &constantVar](auto const&) {
-    constantVarList.push_back(constantVar);
-  };
+  auto constantList = x3::rule<class constantList, std::vector<SConstant>>() =
+      constant[constantVarListPush] % x3::lit(',');
+  auto data =
+      x3::rule<class data,
+               boost::tuple<std::string, uint32_t, std::vector<SConstant>>>() =
+          name >> x3::no_case[dataSizeSymbols] >> constantList;
 
-  auto dataReset = x3::rule<class dataReset>() = x3::eps[constantVarListReset];
-  auto dataProcess = x3::rule<class dataProcess>() =
-      x3::omit[constant[constantVarListPush] % x3::lit(',')];
-  auto data = x3::rule<class data, std::pair<std::string, uint32_t>>() =
-      dataReset >> name >> x3::no_case[dataSizeSymbols] >> dataProcess;
-
-  auto dataFn = [&result, &constantVarList, &label2Index](auto const& ctx) {
+  auto dataFn = [&result, &label2Index](auto& ctx) {
     SCommand d;
     d.mType = NCommand::DATA;
-    d.mData.mName = x3::_attr(ctx).first;
-    d.mData.mSizeData = x3::_attr(ctx).second;
-    d.mData.mConstants = constantVarList;
+    d.mData.mName = boost::get<0>(x3::_attr(ctx));
+    d.mData.mSizeData = boost::get<1>(x3::_attr(ctx));
+    d.mData.mConstants = boost::get<2>(x3::_attr(ctx));
     d.mData.mCount = 1;
-    label2Index[x3::_attr(ctx).first] = result.size();
+    label2Index[boost::get<0>(x3::_attr(ctx))] = result.size();
     result.push_back(d);
   };
 
-  // input << "testDup db 30 dup (80h)";
-  /*auto dataDup =
-      x3::rule<class dataDup, boost::tuple<std::string, uint32_t, uint32_t>>() =
-          name >> x3::no_case[dataSizeSymbols] >> number >>
-          x3::no_case[x3::lit("DUP")] >> x3::lit('(') >> number >> x3::lit(')');
-*/
+  auto dataDup =
+      x3::rule<class dataDup,
+               boost::tuple<std::string, uint32_t, int32_t, int32_t>>() =
+          x3::lexeme[name >> blank >> x3::no_case[dataSizeSymbols] >> blank >>
+                     number >> blank >> x3::no_case[x3::lit("DUP")]] >>
+          x3::lit('(') >> number >> x3::lit(')');
 
-  SOperand operandVar = {};
-  auto operandVarReset = [&operandVar](auto const&) {
-    operandVar = SOperand{};
+  auto dataDupFn = [&result, &label2Index](auto& ctx) {
+    SCommand d;
+    std::cerr << "dataDupFn " << std::endl;
+    d.mType = NCommand::DATA;
+    d.mData.mName = boost::get<0>(x3::_attr(ctx));
+    d.mData.mSizeData = boost::get<1>(x3::_attr(ctx));
+    d.mData.mConstants.push_back(
+        // TODO remove static_cast
+        SConstant{{}, static_cast<uint32_t>(boost::get<3>(x3::_attr(ctx)))});
+    d.mData.mCount = boost::get<2>(x3::_attr(ctx));
+    label2Index[boost::get<0>(x3::_attr(ctx))] = result.size();
+    result.push_back(d);
   };
 
-  auto operandVarMemTypeSet = [&operandVar](auto const& ctx) {
-    operandVar.mType = x3::_attr(ctx);
+  auto operandVarMemTypeSet = [](auto& ctx) {
+    x3::_val(ctx).mType = x3::_attr(ctx);
+  };
+  auto operandVarMemSegmentSet = [](auto& ctx) {
+    x3::_val(ctx).mMemory.mSegment = x3::_attr(ctx);
+  };
+  auto operandVarMemRegisterSet = [](auto& ctx) {
+    x3::_val(ctx).mMemory.mRegisters.push_back(x3::_attr(ctx));
+  };
+  auto operandVarMemScaleSet = [](auto& ctx) {
+    x3::_val(ctx).mMemory.mScale = x3::_attr(ctx) - '0';
+  };
+  auto operandVarMemConstantSet = [](auto& ctx) {
+    x3::_val(ctx).mMemory.mConstant = x3::_attr(ctx);
   };
 
-  auto operandVarMemSegmentSet = [&operandVar](auto const& ctx) {
-    operandVar.mMemory.mSegment = x3::_attr(ctx);
-  };
-
-  auto operandVarMemRegisterSet = [&operandVar](auto const& ctx) {
-    operandVar.mMemory.mRegisters.push_back(x3::_attr(ctx));
-  };
-  auto operandVarMemScaleSet = [&operandVar](auto const& ctx) {
-    operandVar.mMemory.mScale = x3::_attr(ctx) - '0';
-  };
-  auto operandVarMemConstantSet = [&operandVar, &constantVar](auto const&) {
-    operandVar.mMemory.mConstant = constantVar;
-  };
-  auto constantAppend = x3::rule<class constantAppend>() =
-      x3::eps[signVarReset] >> x3::eps[constantVarReset] >>
-      signSymbols[signVarSet] >> nameOrNumber >>
-      *(signSymbols[signVarSet] >> nameOrNumber);
-
-  auto memory = x3::rule<class memory>() =
-      (x3::no_case[memTypeSymbols] >>
-       x3::no_case["PTR"])[operandVarMemTypeSet] >>
-      -(segmentSymbols >> x3::lit(':'))[operandVarMemSegmentSet] >>
+  auto memory =
+      x3::lexeme[x3::no_case[memTypeSymbols] >> blank >> x3::no_case["PTR"]]
+                [operandVarMemTypeSet] >>
+      -x3::no_skip[blank >> segmentSymbols >> -blank >> x3::lit(':')]
+                  [operandVarMemSegmentSet] >>
       x3::lit('[') >>
       ((registerSymbols[operandVarMemRegisterSet] >>
         -(x3::lit('+') >> registerSymbols)[operandVarMemRegisterSet] >>
@@ -369,69 +360,56 @@ std::vector<SCommand> parse(std::istream& input) {
        constant[operandVarMemConstantSet]) >>
       x3::lit(']');
 
-  auto operandVarRegisterSet = [&operandVar](auto const& ctx) {
-    operandVar.mRegister = x3::_attr(ctx);
-    operandVar.mType = operandType(x3::_attr(ctx));
+  auto operandVarRegisterSet = [](auto& ctx) {
+    x3::_val(ctx).mRegister = x3::_attr(ctx);
+    x3::_val(ctx).mType = operandType(x3::_attr(ctx));
   };
 
-  auto operandVarConstantSet = [&operandVar, &constantVar](auto const& ctx) {
-    operandVar.mConstant = constantVar;
-    operandVar.mType = NOperand::CONSTANT;
+  auto operandVarConstantSet = [](auto& ctx) {
+    x3::_val(ctx).mConstant = x3::_attr(ctx);
+    x3::_val(ctx).mType = NOperand::CONSTANT;
   };
 
-  auto operand = x3::rule<class operand>() =
-      x3::eps[operandVarReset] >>
-      (x3::no_case[registerSymbols][operandVarRegisterSet] | memory |
-       constant[operandVarConstantSet]);
+  auto operand = x3::rule<class operand, SOperand>() =
+      x3::skip[x3::no_case[registerSymbols][operandVarRegisterSet] | memory |
+               constant[operandVarConstantSet]];
 
-  SInstruction instVar{};
-  auto instVarReset = [&instVar](auto const&) { instVar = SInstruction{}; };
-  auto instVarPrefixSet = [&instVar](auto const& ctx) {
-    instVar.mPrefix = x3::_attr(ctx);
+  auto instVarPrefixSet = [](auto& ctx) {
+    x3::_val(ctx).mPrefix = x3::_attr(ctx);
   };
-  auto instVarInstSet = [&instVar](auto const& ctx) {
-    instVar.mType = x3::_attr(ctx);
-  };
-  auto instVarOperandSet = [&instVar, &operandVar](auto const& ctx) {
-    instVar.mOperands.push_back(operandVar);
+  auto instVarInstSet = [](auto& ctx) { x3::_val(ctx).mType = x3::_attr(ctx); };
+  auto instVarOperandSet = [](auto& ctx) {
+    x3::_val(ctx).mOperands.push_back(x3::_attr(ctx));
   };
 
-  auto command = x3::rule<class command>() =
-      x3::eps[instVarReset] >> -prefixSymbols[instVarPrefixSet] >>
-      x3::no_case[instSymbols][instVarInstSet] >>
-      -((operand)[instVarOperandSet] % x3::char_(','));
+  auto inst = x3::rule<class inst, SInstruction>() =
+      x3::lexeme[-(prefixSymbols >> blank)[instVarPrefixSet] >>
+                 (x3::no_case[instSymbols] >>
+                  !x3::char_("a-zA-Z0-9"))[instVarInstSet]] >>
+      -(operand[instVarOperandSet] % x3::char_(','));
 
-  auto commandFn = [&result, &instVar](const auto& ctx) {
+  auto instFn = [&result](const auto& ctx) {
     SCommand i;
     i.mType = NCommand::INSTRUCTION;
-    i.mInstruction = instVar;
+    i.mInstruction = x3::_attr(ctx);
     result.push_back(i);
   };
 
   auto const parseResult = x3::phrase_parse(
       begin, end,
       (-(extern_[externFn] | import[importFn] | directive[directiveFn] |
-         section[sectionFn] | label[labelFn] |
-         (-label[labelFn] >> command[commandFn]) | data[dataFn] |
-         dataStr[dataStrFn]) >>
+         section[sectionFn] | (-label[labelFn] >> inst[instFn]) |
+         label[labelFn] | dataStr[dataStrFn] | dataDup[dataDupFn] |
+         data[dataFn]) >>
        -comment) %
           x3::eol,
-      x3::lit(' ') | x3::lit('\t'));
+      x3::blank);
 
   if (!parseResult || begin != end) {
+    std::cout << "parseResult " << parseResult << std::endl;
+    std::copy(begin, end, std::ostream_iterator<char>{std::cout, ""});
     throw std::runtime_error{"Failed to parser asm file"};
   }
-
-  for (auto n : nameList) {
-    std::cout << n << std::endl;
-  }
-
-  for (auto p : label2Index) {
-    std::cout << p.first << " " << p.second << std::endl;
-  }
-
-  std::cout << "hi" << std::endl;
-  loggingCommands(result);
 
   for (auto& r : result) {
     switch (r.mType) {
@@ -463,8 +441,8 @@ std::vector<SCommand> parse(std::istream& input) {
 
   result.push_back({NCommand::END});
 
-  // TODO
-  loggingCommands(result);
+  // TODO debug
+  // loggingCommands(result);
 
   return result;
 }

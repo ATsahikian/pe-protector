@@ -97,6 +97,7 @@ BOOST_AUTO_TEST_CASE(testParserDataDup) {
   BOOST_TEST(commands[0].mData.mConstants.size() == 1);
   BOOST_TEST(commands[0].mData.mConstants[0].mValue == 0x80);
   BOOST_TEST(commands[0].mData.mSizeData == 1);
+  BOOST_TEST(commands[0].mData.mCount == 30);
 }
 BOOST_AUTO_TEST_CASE(testParserSection) {
   std::stringstream input;
@@ -154,7 +155,6 @@ BOOST_AUTO_TEST_CASE(testParserLabel1) {
   const std::vector<SCommand>& commands = parse(input);
 
   BOOST_TEST(commands[0].mType == NCommand::INSTRUCTION);
-  BOOST_TEST(commands[0].mNameLabel == "labelName");
   BOOST_TEST(commands[0].mInstruction.mType == NInstruction::NOP);
 }
 
@@ -165,7 +165,6 @@ BOOST_AUTO_TEST_CASE(testParserLabel2) {
   const std::vector<SCommand>& commands = parse(input);
 
   BOOST_TEST(commands[0].mType == NCommand::INSTRUCTION);
-  BOOST_TEST(commands[0].mNameLabel == "labelName");
   BOOST_TEST(commands[0].mInstruction.mType == NInstruction::NOP);
 }
 
