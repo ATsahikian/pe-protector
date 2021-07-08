@@ -4,9 +4,6 @@
 
 #include <sstream>
 
-// TODO delete
-#include <iostream>
-
 namespace NPeProtector {
 namespace {
 std::string toString(const std::vector<NRegister::EType>& registers) {

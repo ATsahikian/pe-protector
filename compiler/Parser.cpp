@@ -319,7 +319,6 @@ std::vector<SCommand> parse(std::istream& input) {
 
   auto dataDupFn = [&result, &label2Index](auto& ctx) {
     SCommand d;
-    std::cerr << "dataDupFn " << std::endl;
     d.mType = NCommand::DATA;
     d.mData.mName = boost::get<0>(x3::_attr(ctx));
     d.mData.mSizeData = boost::get<1>(x3::_attr(ctx));
@@ -406,8 +405,6 @@ std::vector<SCommand> parse(std::istream& input) {
       x3::blank);
 
   if (!parseResult || begin != end) {
-    std::cout << "parseResult " << parseResult << std::endl;
-    std::copy(begin, end, std::ostream_iterator<char>{std::cout, ""});
     throw std::runtime_error{"Failed to parser asm file"};
   }
 
@@ -417,7 +414,6 @@ std::vector<SCommand> parse(std::istream& input) {
         for (auto& c : r.mData.mConstants) {
           for (auto& l : c.mLabels) {
             assert(l.mIndex < nameList.size());
-            std::cout << nameList[l.mIndex] << std::endl;
             l.mIndex = label2Index.at(nameList[l.mIndex]);
           }
         }
@@ -426,12 +422,10 @@ std::vector<SCommand> parse(std::istream& input) {
         for (auto& o : r.mInstruction.mOperands) {
           for (auto& l : o.mConstant.mLabels) {
             assert(l.mIndex < nameList.size());
-            std::cout << nameList[l.mIndex] << std::endl;
             l.mIndex = label2Index.at(nameList[l.mIndex]);
           }
           for (auto& l : o.mMemory.mConstant.mLabels) {
             assert(l.mIndex < nameList.size());
-            std::cout << nameList[l.mIndex] << std::endl;
             l.mIndex = label2Index.at(nameList[l.mIndex]);
           }
         }

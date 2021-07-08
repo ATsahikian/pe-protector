@@ -14,8 +14,8 @@
 
 #include <windef.h>
 
-#include <cassert>
 #include <windows.h>
+#include <cassert>
 #include <ostream>
 #include <sstream>  // std::stringbuf
 #include <string>   // std::string
@@ -180,7 +180,7 @@ void setExterns(std::vector<SCommand>& commands,
 std::vector<SCommand> loadCommands() {
   std::vector<SCommand> commands;
 
-  const HRSRC  rsrcHandle = ::FindResource(
+  const HRSRC rsrcHandle = ::FindResource(
       NULL, MAKEINTRESOURCE(RESOURCE_IDENTIFIER_COMMANDS), RT_RCDATA);
   if (rsrcHandle != 0) {
     const DWORD rsrcRawSize = ::SizeofResource(NULL, rsrcHandle);
@@ -213,7 +213,7 @@ void protectPe(std::ostream& output, const SClientFile& clientFile) {
   mutateCommands(commands);
   mutateCommands(commands);
 
-  LOG_DEBUG("before:");
+  LOG_DEBUG("after:");
   loggingCommands(commands);
 
   // resolveLabels - done
